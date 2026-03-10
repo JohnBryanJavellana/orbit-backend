@@ -30,12 +30,21 @@ class MembersController extends Controller
         return TransactionUtil::transact(null, [], function () use ($request) {
             $memberTemp = User::query();
 
-            if($request->excludeOmega) $memberTemp->whereNot('role', 'SUPERADMIN');
+            if ($request->excludeOmega) {
+                $memberTemp->whereNot('role', 'SUPERADMIN');
+            }
+
             $members = $request->memberId
                 ? $memberTemp->where('id', $request->memberId)->firstOrFail()
-                : $memberTemp->orderBy('role', 'ASC')->get();
+                : $memberTemp->orderByRaw("
+                    CASE
+                        WHEN role = 'SUPERADMIN' THEN 1
+                        WHEN role = 'ADMINISTRATOR' THEN 2
+                        ELSE 3
+                    END ASC
+                ")->orderBy('total_points', 'DESC')->get();
 
-            return response()->json(['members' => $members], 200);
+        return response()->json(['members' => $members], 200);
         });
     }
 
@@ -77,8 +86,8 @@ class MembersController extends Controller
             }
 
             if($email) {
-                $this_member->email = $email;
                 $this_member->email_verified_at = $this_member->email ? $this_member->email_verified_at : Carbon::now();
+                $this_member->email = $email;
             }
 
             if($profilePicture) {

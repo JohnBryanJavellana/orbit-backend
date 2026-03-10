@@ -21,7 +21,7 @@ class AnnouncementController extends Controller
             $announcements = $request->getNew
                 ? $announcementsTemp->where([
                     'status' => 'SHOW'
-                ])->orderBy('created_at')->get()
+                ])->orderBy('created_at', 'DESC')->get()
                 : $announcementsTemp->orderBy('created_at')->get();
 
             return response()->json(['announcements' => $announcements], 200);
