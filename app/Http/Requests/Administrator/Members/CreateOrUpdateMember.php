@@ -28,6 +28,7 @@ class CreateOrUpdateMember extends FormRequest
             'last_name' => ['required', 'string'],
             'birthday' => ['required', 'date'],
             'gender' => ['required', 'string', 'in:MALE,FEMALE'],
+            'httpMethod' => ['required', 'string', 'in:POST,UPDATE'],
             'role' => [Rule::when($this->httpMethod === "POST" && \in_array($this->user()->role, ['SUPERADMIN']), ['required', 'string', 'in:ADMINISTRATOR,MEMBER'], ['nullable'])],
             'email' => [ 'required', 'email', $this->httpMethod === "UPDATE" ? Rule::unique('users')->ignore($this->documentId) : Rule::unique('users')],
             'documentId' => [Rule::when($this->httpMethod === "UPDATE", ['required', 'exists:users,id'], ['nullable'])]

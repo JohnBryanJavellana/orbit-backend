@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Administrator\AnnouncementController;
 use App\Http\Controllers\Administrator\LogoutController;
 use App\Http\Controllers\Administrator\MembersController;
 use App\Http\Controllers\Administrator\ProjectsController;
@@ -55,6 +56,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/get_members/create_or_update_member', [MembersController::class, 'create_or_update_member']);
             Route::get('/get_member_roles', [MembersController::class, 'get_member_roles'])->middleware(['admin_route']);
             Route::post('/get_member_roles/create_or_update_member_role', [MembersController::class, 'create_or_update_member_role'])->middleware(['admin_route']);
+        });
+
+        Route::prefix('announcement')->group(function() {
+            Route::match(['GET', 'POST'], '/get_announcements/get_announcements', [AnnouncementController::class, 'get_announcements']);
+            Route::post('/get_announcements/create_or_update_announcement', [AnnouncementController::class, 'create_or_update_announcement'])->middleware(['admin_route']);
         });
     });
 

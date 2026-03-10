@@ -1,7 +1,7 @@
 <?php
 
+use App\Models\Member;
 use App\Models\Task;
-use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -24,7 +24,7 @@ return new class extends Migration
             $table->engine('InnoDB');
             $table->id();
             $table->foreignIdFor(Task::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(User::class, 'member_id')->constrained('users')->cascadeOnDelete();
+            $table->foreignIdFor(Member::class, 'member_id')->constrained('members')->cascadeOnDelete();
             $table->longText('activity');
             $table->longText('remarks')->nullable();
             $table->enum('status', self::PROGRESS_STATUS)->default(self::PROGRESS_STATUS[0]);

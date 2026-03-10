@@ -165,7 +165,10 @@ class GetProjectsController extends Controller
             $activity = $request->activity;
 
             $this_task = Task::where('ctrl', $taskCtrl)->firstOrFail();
-            $this_member = Member::where('member_id', $request->user()->id)->firstOrFail();
+            $this_member = Member::where([
+                'member_id' => $request->user()->id,
+                'task_id' => $this_task->id
+            ])->firstOrFail();
             $checkForExistence = TaskProgress::where([
                 'member_id' => $this_member->id,
                 'task_id' => $this_task->id,

@@ -30,7 +30,7 @@ class MembersController extends Controller
         return TransactionUtil::transact(null, [], function () use ($request) {
             $memberTemp = User::query();
 
-            // if($request->excludeOmega) $memberTemp->whereNot('role', 'SUPERADMIN');
+            if($request->excludeOmega) $memberTemp->whereNot('role', 'SUPERADMIN');
             $members = $request->memberId
                 ? $memberTemp->where('id', $request->memberId)->firstOrFail()
                 : $memberTemp->orderBy('role', 'ASC')->get();
