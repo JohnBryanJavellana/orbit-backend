@@ -27,6 +27,7 @@ return new class extends Migration
             $table->foreignIdFor(User::class, 'creator_id')->constrained('users')->cascadeOnDelete();
             $table->string('name', 255);
             $table->longText('description');
+            $table->bigInteger('completion_points');
             $table->enum('status', self::PROJECT_STATUS)->default(self::PROJECT_STATUS[0]);
             $table->timestamps();
         });

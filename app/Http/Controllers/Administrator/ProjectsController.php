@@ -164,6 +164,7 @@ class ProjectsController extends Controller
             $name = $request->name;
             $status = $request->status;
             $description = $request->description;
+            $completionPoints = $request->completionPoints;
 
             $this_project = $isPost
                 ? new Projects()
@@ -172,11 +173,27 @@ class ProjectsController extends Controller
             $this_project->creator_id = $request->user()->id;
             $this_project->name = $name;
             $this_project->description = $description;
+            $this_project->completion_points = $completionPoints;
 
             if($isPost) {
                 $this_project->ctrl = GenerateTrace::createTraceNumber(Projects::class, 'P-', 'ctrl');
             } else {
                 $this_project->status = $status;
+
+                if($status === "COMPLETED") {
+                    foreach ($this_project->collaborators() as $collaborator) {
+                        $this_main_account = User::findOrFail($collaborator->collaborator_id);
+                        $this_main_account->total_points += $this_project->completion_points;
+                        $this_main_account->save();
+
+                        NewAuraRecord::createRecord(
+                            $this_main_account->id,
+                            $this_project->completion_points,
+                            'INCREASE',
+                            'Added from a completed project.'
+                        );
+                    }
+                }
             }
 
             $this_project->save();
