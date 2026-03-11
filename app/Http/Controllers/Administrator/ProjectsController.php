@@ -248,6 +248,21 @@ class ProjectsController extends Controller
                 $this_project_task->ctrl = GenerateTrace::createTraceNumber(Task::class, 'PT-', 'ctrl');
             } else {
                 $this_project_task->status = $status;
+
+                if($status === "COMPLETED") {
+                    foreach ($this_project_task->members() as $member) {
+                        $this_main_account = User::findOrFail($member->member_id);
+                        $this_main_account->total_points += $this_project_task->task_completion_points;
+                        $this_main_account->save();
+
+                        NewAuraRecord::createRecord(
+                            $this_main_account->id,
+                            $this_project_task->task_completion_points,
+                            'INCREASE',
+                            'Added from a completed task.'
+                        );
+                    }
+                }
             }
 
             $this_project_task->save();
