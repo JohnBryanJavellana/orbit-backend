@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\Administrator\AnnouncementController;
+use App\Http\Controllers\Administrator\AuraPointRecordController;
 use App\Http\Controllers\Administrator\LogoutController;
 use App\Http\Controllers\Administrator\MembersController;
 use App\Http\Controllers\Administrator\ProjectsController;
@@ -61,6 +62,11 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('announcement')->group(function() {
             Route::match(['GET', 'POST'], '/get_announcements/get_announcements', [AnnouncementController::class, 'get_announcements']);
             Route::post('/get_announcements/create_or_update_announcement', [AnnouncementController::class, 'create_or_update_announcement'])->middleware(['admin_route']);
+        });
+
+        Route::prefix('aura_point_record')->group(function() {
+            Route::match(['GET', 'POST'], '/aura_point_record/get_aura_point_records', [AuraPointRecordController::class, 'get_aura_point_records']);
+            Route::post('/aura_point_record/modify_points', [AuraPointRecordController::class, 'modify_points'])->middleware(['admin_route']);
         });
     });
 

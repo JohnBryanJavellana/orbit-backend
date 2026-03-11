@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('name', 255);
             $table->longText('description');
             $table->enum('status', self::TASK_STATUS)->default(self::TASK_STATUS[0]);
+            $table->dateTime('datetime_limit')->nullable();
             $table->bigInteger('task_completion_points');
             $table->bigInteger('task_progress_points');
             $table->timestamps();
