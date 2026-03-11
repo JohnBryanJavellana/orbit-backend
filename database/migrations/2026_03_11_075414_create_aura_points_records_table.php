@@ -22,6 +22,7 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(User::class, 'point_receiver')->constrained('users')->cascadeOnDelete();
             $table->longText('reason');
+            $table->bigInteger('point');
             $table->enum('status', self::RECORD_STATUS);
             $table->timestamps();
         });

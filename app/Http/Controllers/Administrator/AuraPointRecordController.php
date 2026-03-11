@@ -49,6 +49,7 @@ class AuraPointRecordController extends Controller
 
             $this_modification = new AuraPointsRecord();
             $this_modification->point_receiver = $playerId;
+            $this_modification->point = $points;
             $this_modification->reason = $contentText;
             $this_modification->status = $modifyType;
             $this_modification->save();

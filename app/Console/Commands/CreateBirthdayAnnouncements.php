@@ -2,6 +2,7 @@
 
 namespace App\Console\Commands;
 
+use App\Models\AuraPointsRecord;
 use App\Models\User;
 use App\Models\Announcement;
 use App\Utils\GenerateTrace;
@@ -11,14 +12,13 @@ use Illuminate\Support\Carbon;
 class CreateBirthdayAnnouncements extends Command
 {
     protected $signature = 'announcements:birthdays';
-    protected $description = 'Create birthday announcements for users celebrating today';
+    protected $description = 'Create birthday announcements and rewards (runs every 5 mins safely)';
 
-    public function handle()
-    {
+    public function handle(){
         $today = Carbon::today();
         $birthdayUsers = User::whereMonth('birthday', $today->month)
-                             ->whereDay('birthday', $today->day)
-                             ->get();
+            ->whereDay('birthday', $today->day)
+            ->get();
 
         if ($birthdayUsers->isEmpty()) {
             $this->info('No birthdays today.');
@@ -29,23 +29,35 @@ class CreateBirthdayAnnouncements extends Command
         $creatorId = $admin ? $admin->id : 1;
 
         foreach ($birthdayUsers as $user) {
-            $s = $user->suffix ?? '';
-            $fullName = "{$user->first_name} {$user->middle_name} {$user->last_name} {$s}";
+            $dailyKey = "BDAY_{$user->id}_" . $today->toDateString();
+            $alreadyDone = Announcement::where('ctrl', 'LIKE', "%$dailyKey%")->exists();
 
-            Announcement::create([
-                'ctrl' => GenerateTrace::createTraceNumber(Announcement::class, 'A-', 'ctrl'),
-                'creator_id' => $creatorId,
-                'content' => $this->getBirthdayTemplate($fullName),
-                'status' => 'SHOW',
-                'removal_date' => $today->endOfDay(),
-            ]);
+            if (!$alreadyDone) {
+                $s = $user->suffix ?? '';
+                $fullName = trim("{$user->first_name} {$user->middle_name} {$user->last_name} {$s}");
+
+                Announcement::create([
+                    'ctrl' => GenerateTrace::createTraceNumber(Announcement::class, 'A-', 'ctrl') . "|$dailyKey",
+                    'creator_id' => $creatorId,
+                    'content' => $this->getBirthdayTemplate($fullName),
+                    'status' => 'SHOW',
+                    'removal_date' => $today->copy()->endOfDay(),
+                ]);
+
+                $reward = new AuraPointsRecord();
+                $reward->point_receiver = $user->id;
+                $reward->point = 300;
+                $reward->reason = "Birthday Aura Points Reward";
+                $reward->status = "INCREASE";
+                $reward->save();
+
+                $user->increment('total_points', 300);
+                $this->info("Rewarded {$fullName} for their birthday!");
+            }
         }
-
-        $this->info("Created " . $birthdayUsers->count() . " birthday announcements.");
     }
 
-    private function getBirthdayTemplate($name)
-    {
+    private function getBirthdayTemplate($name){
         return "
             <p><strong>Hear ye, Hear ye! </strong></p>
             <p>The High Council recognizes the glorious day of <strong>{$name}</strong>!</p>
