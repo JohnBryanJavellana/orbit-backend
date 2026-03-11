@@ -38,6 +38,7 @@ class AnnouncementController extends Controller
             $documentId = $request->documentId;
             $contentText = $request->contentText;
             $status = $request->status;
+            $removalDate = $request->removalDate;
 
             $this_announcement = $isPost
                 ? new Announcement()
@@ -49,6 +50,7 @@ class AnnouncementController extends Controller
                 $this_announcement->status = $status;
             }
 
+            $this_announcement->removal_date = $removalDate === 'null' ? null : $removalDate;
             $this_announcement->creator_id = $request->user()->id;
             $this_announcement->content = $contentText;
             $this_announcement->save();
