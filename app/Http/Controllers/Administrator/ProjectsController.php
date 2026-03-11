@@ -15,6 +15,7 @@ use App\Models\Member;
 use App\Models\ProjectCollaborator;
 use App\Models\TaskProgress;
 use App\Models\User;
+use App\Utils\NewAuraRecord;
 use Illuminate\Http\Request;
 
 use App\Http\Requests\Administrator\Project\{
@@ -363,6 +364,13 @@ class ProjectsController extends Controller
             if($status === 'VERIFIED') {
                 $initiator = $this_progress->initiator->user;
                 $initiator->increment('total_points', $this_progress->task->task_progress_points);
+
+                NewAuraRecord::createRecord(
+                    $this_progress->initiator->user->id,
+                    $this_progress->task->task_progress_points,
+                    'INCREASE',
+                    'Added from a verified task progress.'
+                );
             }
 
             return response()->json(['message' => "$status successfully!"], status: 200);

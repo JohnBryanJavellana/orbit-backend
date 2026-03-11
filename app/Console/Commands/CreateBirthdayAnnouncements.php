@@ -2,10 +2,10 @@
 
 namespace App\Console\Commands;
 
-use App\Models\AuraPointsRecord;
 use App\Models\User;
 use App\Models\Announcement;
 use App\Utils\GenerateTrace;
+use App\Utils\NewAuraRecord;
 use Illuminate\Console\Command;
 use Illuminate\Support\Carbon;
 
@@ -44,12 +44,12 @@ class CreateBirthdayAnnouncements extends Command
                     'removal_date' => $today->copy()->endOfDay(),
                 ]);
 
-                $reward = new AuraPointsRecord();
-                $reward->point_receiver = $user->id;
-                $reward->point = 300;
-                $reward->reason = "Birthday Aura Points Reward";
-                $reward->status = "INCREASE";
-                $reward->save();
+                NewAuraRecord::createRecord(
+                    $user->id,
+                    300,
+                    'INCREASE',
+                    'Birthday Aura Points Reward'
+                );
 
                 $user->increment('total_points', 300);
                 $this->info("Rewarded {$fullName} for their birthday!");
@@ -59,9 +59,11 @@ class CreateBirthdayAnnouncements extends Command
 
     private function getBirthdayTemplate($name){
         return "
-            <p><strong>Hear ye, Hear ye! </strong></p>
-            <p>The High Council recognizes the glorious day of <strong>{$name}</strong>!</p>
-            <p>The High Council has decreed a change to all upcoming tasks. To ensure the swiftness of our realm, a mystical Time Limit shall soon be enchanted upon every quest. Be warned: as the sands of the hourglass fall, so too shall your potential rewards. Should the timer strike zero before your task is complete, you shall be bound by duty to finish your work—but alas, no gold or glory (points) shall be granted for your tardiness. Sharpen your tools and act with haste!</p>
+            <p>Hear ye, <strong>Orbit Interns</strong>!</p>
+            <p><strong>HERO:</strong> <strong>{$name}</strong></p>
+            <p><strong>CLASS:</strong> Novice</p>
+            <p><strong>CURRENT STATUS:</strong> <strong>BIRTHDAY BUFF ACTIVE</strong> (+300 Aura Points)</p>
+            <p>A wish for you on your birthday, whatever you ask may you receive, whatever you seek may you find, whatever you wish may it be fulfilled on your birthday and always. Happy birthday!</p>
         ";
     }
 }
