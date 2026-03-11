@@ -38,6 +38,7 @@ class AnnouncementController extends Controller
             $documentId = $request->documentId;
             $contentText = $request->contentText;
             $status = $request->status;
+            $removalDate = $request->removalDate;
 
             $this_announcement = $isPost
                 ? new Announcement()
@@ -47,6 +48,10 @@ class AnnouncementController extends Controller
                 $this_announcement->ctrl = GenerateTrace::createTraceNumber(Announcement::class, 'A-', 'ctrl');
             } else {
                 $this_announcement->status = $status;
+            }
+
+            if($removalDate) {
+                $this_announcement->removal_date = $removalDate;
             }
 
             $this_announcement->creator_id = $request->user()->id;
