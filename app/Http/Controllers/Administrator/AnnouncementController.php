@@ -50,10 +50,7 @@ class AnnouncementController extends Controller
                 $this_announcement->status = $status;
             }
 
-            if($removalDate) {
-                $this_announcement->removal_date = $removalDate;
-            }
-
+            $this_announcement->removal_date = $removalDate === 'null' ? null : $removalDate;
             $this_announcement->creator_id = $request->user()->id;
             $this_announcement->content = $contentText;
             $this_announcement->save();
