@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\CustomBorder;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -39,6 +40,7 @@ return new class extends Migration
             $table->string('password');
             $table->bigInteger('total_points')->default(0);
             $table->timestamp('last_seen_at')->nullable();
+            $table->foreignIdFor(CustomBorder::class)->constrained()->cascadeOnDelete();
             $table->rememberToken();
             $table->timestamps();
         });

@@ -27,7 +27,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $guarded = ['id'];
-    protected $appends = ['aura_progress', 'user_profile_view', 'is_online'];
+    protected $appends = ['aura_progress', 'user_profile_view', 'is_online', 'custom_border'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -103,6 +103,14 @@ class User extends Authenticatable
 
     public function getIsOnlineAttribute(){
         return $this->last_seen_at && Carbon::parse($this->last_seen_at)->diffInSeconds(now()) < 20;
+    }
+
+    public function customBorder() {
+        return $this->hasOne(CustomBorder::class, 'id', 'custom_border_id');
+    }
+
+    public function getCustomBorderAttribute(){
+        return $this->customBorder()->first();
     }
 
     public function getUserProfileViewAttribute() {

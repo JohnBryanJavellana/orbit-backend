@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Administrator\AnnouncementController;
 use App\Http\Controllers\Administrator\AuraPointRecordController;
+use App\Http\Controllers\Administrator\BorderController;
 use App\Http\Controllers\Administrator\LogoutController;
 use App\Http\Controllers\Administrator\MembersController;
 use App\Http\Controllers\Administrator\ProjectsController;
@@ -67,6 +68,13 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('aura_point_record')->group(function() {
             Route::match(['GET', 'POST'], '/aura_point_record/get_aura_point_records', [AuraPointRecordController::class, 'get_aura_point_records']);
             Route::post('/aura_point_record/modify_points', [AuraPointRecordController::class, 'modify_points'])->middleware(['admin_route']);
+        });
+
+        Route::prefix('border')->group(function() {
+            Route::match(['GET', 'POST'], '/border/get_custom_borders', [BorderController::class, 'get_custom_borders'])->middleware(['admin_route']);
+            Route::post('/border/create_or_update_custom_border', [BorderController::class, 'create_or_update_custom_border'])->middleware(['admin_route']);
+            Route::post('/border/get_available_custom_borders', [BorderController::class, 'get_available_custom_borders']);
+            Route::post('/border/set_as_my_custom_border', [BorderController::class, 'set_as_my_custom_border']);
         });
     });
 
