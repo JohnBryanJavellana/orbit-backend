@@ -299,6 +299,11 @@ class ProjectsController extends Controller
             $memberRoleId = $request->memberRoleId;
 
             $this_task = Task::where('ctrl', $taskCtrl)->firstOrFail();
+
+            if($this_task->members()->where('member_id', $memberId)->exists()) {
+                return response()->json(['message' => "Member is already a collaborator."], 409);
+            }
+
             $assign_member = new Member();
             $assign_member->added_by_id = $request->user()->id;
             $assign_member->task_id = $this_task->id;
@@ -307,7 +312,7 @@ class ProjectsController extends Controller
             $assign_member->status = "ACTIVE";
             $assign_member->save();
 
-            return response()->json(['message' => "Success action!"], status: 200);
+            return response()->json(['message' => "Success action!"], 200);
         });
     }
 
