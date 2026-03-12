@@ -48,10 +48,6 @@ class ProjectsController extends Controller
                 'collaborators.user'
             ]);
 
-            // if($request->user()->role !== "SUPERADMIN" && $request->user()->role === "ADMINISTRATOR") {
-            //     $projectsTemp->where('creator_id', $request->user()->id);
-            // }
-
             $projects = $request->projectCtrl
                 ? $projectsTemp->where('ctrl', $request->projectCtrl)->firstOrFail()
                 : $projectsTemp->get();
