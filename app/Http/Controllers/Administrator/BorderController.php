@@ -39,17 +39,17 @@ class BorderController extends Controller
     public function get_available_custom_borders(Request $request) {
         return TransactionUtil::transact(null, [], function () use ($request) {
             $type = $request->type;
+            $user = $request->user();
+
             $borders = CustomBorder::where('type', $type)->get()
-                ->map(function($self) use ($request, $type) {
+                ->map(function($self) use ($user, $type) {
+                    $iCanUse = ($type === "FREE" || $user->role === "SUPERADMIN") ? true : $self->userInv()->where('user_id', $user->id)->exists();
                     return [
                         'id' => $self->id,
                         'border' => $self->filename,
-                        'iCanUse' => $type === "FREE" || $request->user()->role === "SUPERADMIN" ? true : $self->userInv()->where([
-                            'user_id' => $request->user()->id,
-                            'custom_border_id' => $self->id
-                        ])->exists()
+                        'iCanUse' => $iCanUse
                     ];
-                })->values();
+                })->sortByDesc('iCanUse')->values();
 
             return response()->json(['borders' => $borders], 200);
         });
