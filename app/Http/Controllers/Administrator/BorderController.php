@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Administrator\Border\AddUserRareInvBorder;
 use App\Http\Requests\Administrator\Border\CreateOrUpdateBorder;
 use App\Http\Requests\Administrator\Border\GetUserNewRareBorder;
 use App\Http\Requests\Administrator\Border\GetUserRareBorder;
@@ -91,11 +92,40 @@ class BorderController extends Controller
     public function get_user_new_rare_borders(GetUserNewRareBorder $request) {
         return TransactionUtil::transact(null, [], function () use ($request) {
             $userId = $request->userId;
-            $borders = CustomBorder::where([
-                'type' => "RARE"
-            ])->whereDoesntHave('userInv', fn($query) => $query->user_id === $userId)->get();
+
+            $borders = CustomBorder::where('type', 'RARE')
+                ->whereDoesntHave('userInv', function($query) use ($userId) {
+                    $query->where('user_id', $userId);
+                })->get();
 
             return response()->json(['borders' => $borders], 200);
+        });
+    }
+
+    /**
+     * Summary of add_new_rare_borders
+     * @param AddUserRareInvBorder $request
+     */
+    public function add_new_rare_borders(AddUserRareInvBorder $request) {
+        return TransactionUtil::transact($request, [], function () use ($request) {
+            $userId = $request->userId;
+            $borderId = $request->input('border');
+
+            foreach($borderId as $b) {
+                $checkForExistence = UserBorderInv::where([
+                    'user_id' => $userId,
+                    'custom_border_id' => $b
+                ])->exists();
+
+                if(!$checkForExistence) {
+                    $new_rare_in_inv = new UserBorderInv();
+                    $new_rare_in_inv->user_id = $userId;
+                    $new_rare_in_inv->custom_border_id = $b;
+                    $new_rare_in_inv->save();
+                }
+            }
+
+            return response()->json(['message' => "Successs action!"], 200);
         });
     }
 

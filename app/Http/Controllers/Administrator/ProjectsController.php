@@ -247,8 +247,7 @@ class ProjectsController extends Controller
                 if($status === "COMPLETED") {
                     foreach ($this_project_task->members as $member) {
                         $this_main_account = User::findOrFail($member->member_id);
-                        $this_main_account->total_points += $this_project_task->task_completion_points;
-                        $this_main_account->save();
+                        $this_main_account->increment('total_points', $this_project_task->task_completion_points);
 
                         NewAuraRecord::createRecord(
                             $this_main_account->id,
