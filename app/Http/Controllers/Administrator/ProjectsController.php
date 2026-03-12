@@ -82,24 +82,7 @@ class ProjectsController extends Controller
      */
     public function get_future_collaborators(Request $request) {
         return TransactionUtil::transact(null, [], function () use ($request) {
-            $type = $request->type;
-            $projectCtrl = $request->projectCtrl;
-
-            $query = User::query();
-
-            $future_collaborators = $type === 'MAIN_PROJECT'
-                ? $query->where(function($q) {
-                        $q->whereHas('appliedProjects', fn($sub) => $sub->whereNotIn('status', ['ACTIVE']))
-                        ->orDoesntHave('appliedProjects');
-                    })->get()
-                : $query->whereHas('appliedProjects', function($q) use ($projectCtrl) {
-                        $this_project = Projects::where('ctrl', $projectCtrl)->firstOrFail();
-                        $q->where('projects_id', $this_project->id);
-                    })->where(function($q) {
-                        $q->whereHas('taskAssignments', fn($sub) => $sub->whereNotIn('status', ['ACTIVE']))
-                        ->orDoesntHave('taskAssignments');
-                    })->get();
-
+            $future_collaborators = User::all();
             return response()->json(['future_collaborators' => $future_collaborators], 200);
         });
     }
