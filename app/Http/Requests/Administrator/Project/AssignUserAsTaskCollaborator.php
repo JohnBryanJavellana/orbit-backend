@@ -23,7 +23,7 @@ class AssignUserAsTaskCollaborator extends FormRequest
     {
         return [
             'taskCtrl' => ['required', 'exists:tasks,ctrl'],
-            'memberId' => ['required', 'exists:users,id', 'unique:members,member_id'],
+            'memberId' => ['required', 'exists:users,id'],
             'memberRoleId' => ['nullable', 'exists:member_roles,id']
         ];
     }

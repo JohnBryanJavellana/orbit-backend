@@ -48,10 +48,6 @@ class ProjectsController extends Controller
                 'collaborators.user'
             ]);
 
-            if($request->user()->role !== "SUPERADMIN" && $request->user()->role === "ADMINISTRATOR") {
-                $projectsTemp->where('creator_id', $request->user()->id);
-            }
-
             $projects = $request->projectCtrl
                 ? $projectsTemp->where('ctrl', $request->projectCtrl)->firstOrFail()
                 : $projectsTemp->get();
@@ -86,25 +82,8 @@ class ProjectsController extends Controller
      */
     public function get_future_collaborators(Request $request) {
         return TransactionUtil::transact(null, [], function () use ($request) {
-            $type = $request->type;
-            $projectCtrl = $request->projectCtrl;
-
-            $query = User::all();
-
-            // $future_collaborators = $type === 'MAIN_PROJECT'
-            //     ? $query->where(function($q) {
-            //             $q->whereHas('appliedProjects', fn($sub) => $sub->whereNotIn('status', ['ACTIVE']))
-            //             ->orDoesntHave('appliedProjects');
-            //         })->get()
-            //     : $query->whereHas('appliedProjects', function($q) use ($projectCtrl) {
-            //             $this_project = Projects::where('ctrl', $projectCtrl)->firstOrFail();
-            //             $q->where('projects_id', $this_project->id);
-            //         })->where(function($q) {
-            //             $q->whereHas('taskAssignments', fn($sub) => $sub->whereNotIn('status', ['ACTIVE']))
-            //             ->orDoesntHave('taskAssignments');
-            //         })->get();
-
-            return response()->json(['future_collaborators' => $query], 200);
+            $future_collaborators = User::all();
+            return response()->json(['future_collaborators' => $future_collaborators], 200);
         });
     }
 
@@ -246,8 +225,7 @@ class ProjectsController extends Controller
             $task_progress_points = $request->task_progress_points;
 
             $this_project = Projects::where([
-                'ctrl' => $projectCtrl,
-                'creator_id' => $request->user()->id
+                'ctrl' => $projectCtrl
             ])->firstOrFail();
 
             $this_project_task = $isPost
