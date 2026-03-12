@@ -48,9 +48,9 @@ class ProjectsController extends Controller
                 'collaborators.user'
             ]);
 
-            if($request->user()->role !== "SUPERADMIN" && $request->user()->role === "ADMINISTRATOR") {
-                $projectsTemp->where('creator_id', $request->user()->id);
-            }
+            // if($request->user()->role !== "SUPERADMIN" && $request->user()->role === "ADMINISTRATOR") {
+            //     $projectsTemp->where('creator_id', $request->user()->id);
+            // }
 
             $projects = $request->projectCtrl
                 ? $projectsTemp->where('ctrl', $request->projectCtrl)->firstOrFail()
@@ -246,8 +246,7 @@ class ProjectsController extends Controller
             $task_progress_points = $request->task_progress_points;
 
             $this_project = Projects::where([
-                'ctrl' => $projectCtrl,
-                'creator_id' => $request->user()->id
+                'ctrl' => $projectCtrl
             ])->firstOrFail();
 
             $this_project_task = $isPost
