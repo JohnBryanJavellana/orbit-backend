@@ -149,12 +149,12 @@ class ProjectsController extends Controller
                 ? new Projects()
                 : Projects::where('id', $documentId)->lockForUpdate()->firstOrFail();
 
-            $this_project->creator_id = $request->user()->id;
             $this_project->name = $name;
             $this_project->description = $description;
             $this_project->completion_points = $completionPoints;
 
             if($isPost) {
+                $this_project->creator_id = $request->user()->id;
                 $this_project->ctrl = GenerateTrace::createTraceNumber(Projects::class, 'P-', 'ctrl');
             } else {
                 $this_project->status = $status;
@@ -233,13 +233,13 @@ class ProjectsController extends Controller
                 : Task::where('id', $documentId)->lockForUpdate()->first();
 
             $this_project_task->projects_id = $this_project->id;
-            $this_project_task->creator_id = $request->user()->id;
             $this_project_task->name = $name;
             $this_project_task->description = $description;
             $this_project_task->task_completion_points = $task_completion_points;
             $this_project_task->task_progress_points = $task_progress_points;
 
             if($isPost) {
+                $this_project_task->creator_id = $request->user()->id;
                 $this_project_task->ctrl = GenerateTrace::createTraceNumber(Task::class, 'PT-', 'ctrl');
             } else {
                 $this_project_task->status = $status;
