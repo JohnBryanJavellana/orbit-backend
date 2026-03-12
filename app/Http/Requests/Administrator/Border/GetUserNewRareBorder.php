@@ -1,11 +1,10 @@
 <?php
 
-namespace App\Http\Requests\Administrator\Project;
+namespace App\Http\Requests\Administrator\Border;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Validation\Rule;
 
-class UpdateTaskProgress extends FormRequest
+class GetUserNewRareBorder extends FormRequest
 {
     /**
      * Determine if the user is authorized to make this request.
@@ -23,9 +22,7 @@ class UpdateTaskProgress extends FormRequest
     public function rules(): array
     {
         return [
-            'progressId' => ['required', 'exists:task_progress,id'],
-            'status' => ['required', 'in:PENDING,VERIFIED,NOT WORKING PROPERLY,DECLINED'],
-            'remarks' => [Rule::when($this->status === 'DECLINED', ['required', 'string'], ['nullable'])],
+            'userId' => ['required', 'exists:users,id']
         ];
     }
 }

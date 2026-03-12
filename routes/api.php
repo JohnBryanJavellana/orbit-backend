@@ -75,6 +75,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/border/create_or_update_custom_border', [BorderController::class, 'create_or_update_custom_border'])->middleware(['admin_route']);
             Route::post('/border/get_available_custom_borders', [BorderController::class, 'get_available_custom_borders']);
             Route::post('/border/set_as_my_custom_border', [BorderController::class, 'set_as_my_custom_border']);
+            Route::post('/border/get_user_rare_borders', [BorderController::class, 'get_user_rare_borders']);
+            Route::post('/border/get_user_new_rare_borders', [BorderController::class, 'get_user_new_rare_borders']);
         });
     });
 

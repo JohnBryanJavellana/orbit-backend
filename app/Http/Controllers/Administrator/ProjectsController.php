@@ -89,22 +89,22 @@ class ProjectsController extends Controller
             $type = $request->type;
             $projectCtrl = $request->projectCtrl;
 
-            $query = User::query();
+            $query = User::all();
 
-            $future_collaborators = $type === 'MAIN_PROJECT'
-                ? $query->where(function($q) {
-                        $q->whereHas('appliedProjects', fn($sub) => $sub->whereNotIn('status', ['ACTIVE']))
-                        ->orDoesntHave('appliedProjects');
-                    })->get()
-                : $query->whereHas('appliedProjects', function($q) use ($projectCtrl) {
-                        $this_project = Projects::where('ctrl', $projectCtrl)->firstOrFail();
-                        $q->where('projects_id', $this_project->id);
-                    })->where(function($q) {
-                        $q->whereHas('taskAssignments', fn($sub) => $sub->whereNotIn('status', ['ACTIVE']))
-                        ->orDoesntHave('taskAssignments');
-                    })->get();
+            // $future_collaborators = $type === 'MAIN_PROJECT'
+            //     ? $query->where(function($q) {
+            //             $q->whereHas('appliedProjects', fn($sub) => $sub->whereNotIn('status', ['ACTIVE']))
+            //             ->orDoesntHave('appliedProjects');
+            //         })->get()
+            //     : $query->whereHas('appliedProjects', function($q) use ($projectCtrl) {
+            //             $this_project = Projects::where('ctrl', $projectCtrl)->firstOrFail();
+            //             $q->where('projects_id', $this_project->id);
+            //         })->where(function($q) {
+            //             $q->whereHas('taskAssignments', fn($sub) => $sub->whereNotIn('status', ['ACTIVE']))
+            //             ->orDoesntHave('taskAssignments');
+            //         })->get();
 
-            return response()->json(['future_collaborators' => $future_collaborators], 200);
+            return response()->json(['future_collaborators' => $query], 200);
         });
     }
 
@@ -181,7 +181,7 @@ class ProjectsController extends Controller
                 $this_project->status = $status;
 
                 if($status === "COMPLETED") {
-                    foreach ($this_project->collaborators() as $collaborator) {
+                    foreach ($this_project->collaborators as $collaborator) {
                         $this_main_account = User::findOrFail($collaborator->collaborator_id);
                         $this_main_account->total_points += $this_project->completion_points;
                         $this_main_account->save();
@@ -267,7 +267,7 @@ class ProjectsController extends Controller
                 $this_project_task->status = $status;
 
                 if($status === "COMPLETED") {
-                    foreach ($this_project_task->members() as $member) {
+                    foreach ($this_project_task->members as $member) {
                         $this_main_account = User::findOrFail($member->member_id);
                         $this_main_account->total_points += $this_project_task->task_completion_points;
                         $this_main_account->save();
