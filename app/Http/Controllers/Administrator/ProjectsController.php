@@ -277,7 +277,7 @@ class ProjectsController extends Controller
                 'member_role'
             ])->where([
                 'task_id' => $this_task->id
-            ])->whereNot('status', 'CANCELLED', 'DECLINED')->get();
+            ])->whereNotIn('status', ['CANCELLED', 'DECLINED'])->get();
 
             return response()->json([
                 'members' => $members,

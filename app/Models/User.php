@@ -101,6 +101,10 @@ class User extends Authenticatable
         return $this->hasManyThrough(Task::class, Projects::class, 'creator_id', 'projects_id', 'id', 'id');
     }
 
+    public function tasksCreated() {
+        return $this->hasMany(Task::class, 'creator_id', 'id');
+    }
+
     public function getIsOnlineAttribute(){
         return $this->last_seen_at && Carbon::parse($this->last_seen_at)->diffInSeconds(now()) < 20;
     }
@@ -125,8 +129,8 @@ class User extends Authenticatable
         return [
             'stats' => [
                 'created_projects' => $this->createdProjects,
-                'deployed_tasks'=> $this->tasks()->where('tasks.creator_id', $this->id)->count(),
-                'accomplished_tasks' => $this->tasks()
+                'deployed_tasks'=> $this->tasksCreated()->where('tasks.creator_id', $this->id)->count(),
+                'accomplished_tasks' => $this->tasksCreated()
                     ->where('tasks.creator_id', $this->id)
                     ->where('tasks.status', "COMPLETED")
                     ->count(),
