@@ -39,30 +39,35 @@ class CreateBirthdayAnnouncements extends Command
                 Announcement::create([
                     'ctrl' => GenerateTrace::createTraceNumber(Announcement::class, 'A-', 'ctrl') . "|$dailyKey",
                     'creator_id' => $creatorId,
-                    'content' => $this->getBirthdayTemplate($fullName),
+                    'content' => $this->getBirthdayTemplate($fullName, $user->role === "MEMBER"),
                     'status' => 'SHOW',
                     'removal_date' => $today->copy()->endOfDay(),
                 ]);
 
-                NewAuraRecord::createRecord(
-                    $user->id,
-                    300,
-                    'INCREASE',
-                    'Birthday Aura Points Reward'
-                );
+                if($user->role === "MEMBER") {
+                    NewAuraRecord::createRecord(
+                        $user->id,
+                        300,
+                        'INCREASE',
+                        'Birthday Aura Points Reward'
+                    );
 
-                $user->increment('total_points', 300);
+                    $user->increment('total_points', 300);
+                }
+
                 $this->info("Rewarded {$fullName} for their birthday!");
             }
         }
     }
 
-    private function getBirthdayTemplate($name){
+    private function getBirthdayTemplate($name, $isMember){
+        $addText = $isMember ? '<strong>CURRENT STATUS:</strong> <strong>BIRTHDAY BUFF ACTIVE</strong> (+300 Aura Points)' : '';
+
         return "
             <p>Hear ye, <strong>Orbit Interns</strong>!</p>
             <p><strong>HERO:</strong> <strong>{$name}</strong></p>
             <p><strong>CLASS:</strong> Novice</p>
-            <p><strong>CURRENT STATUS:</strong> <strong>BIRTHDAY BUFF ACTIVE</strong> (+300 Aura Points)</p>
+            <p>{$addText}</p>
             <p>A wish for you on your birthday, whatever you ask may you receive, whatever you seek may you find, whatever you wish may it be fulfilled on your birthday and always. Happy birthday!</p>
         ";
     }

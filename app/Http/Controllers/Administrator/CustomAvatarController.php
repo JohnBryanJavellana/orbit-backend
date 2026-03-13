@@ -82,13 +82,15 @@ class CustomAvatarController extends Controller
             $newMainAvatar = $request->newMainAvatar;
 
             $userCustomAvatar = UserCustomAvatar::findOrFail($userCustomAvatarId);
+            $userCustomAvatar->custom_avatar_id = null;
 
             if($using === "MAIN" && $newMainAvatar) {
                 $filename = Str::uuid() . '.png';
                 SaveAvatar::dispatch($newMainAvatar, $filename, 'user-images', false, true, $newMainAvatar ? $userCustomAvatar->profile_picture : '');
                 $userCustomAvatar->profile_picture = $filename;
-                $userCustomAvatar->custom_avatar_id = null;
-            } else {
+            }
+
+            if($using === "CUSTOM") {
                 $userCustomAvatar->custom_avatar_id = $avatarId;
             }
 
