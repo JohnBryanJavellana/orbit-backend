@@ -66,7 +66,6 @@ class MembersController extends Controller
             $role = $request->role;
             $email = $request->email;
             $password = $request->password;
-            $profilePicture = $request->profilePicture;
 
             $this_member = $isPost
                 ? new User()
@@ -88,12 +87,6 @@ class MembersController extends Controller
             if($email) {
                 $this_member->email_verified_at = $this_member->email ? $this_member->email_verified_at : Carbon::now();
                 $this_member->email = $email;
-            }
-
-            if($profilePicture) {
-                $filename = Str::uuid() . '.png';
-                SaveAvatar::dispatch($profilePicture, $filename, 'user-images', false, true, !$isPost && $profilePicture ? $this_member->profile_picture : '');
-                $this_member->profile_picture = $filename;
             }
 
             $this_member->save();
