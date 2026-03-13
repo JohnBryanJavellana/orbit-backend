@@ -6,6 +6,7 @@ use App\Http\Controllers\Administrator\BorderController;
 use App\Http\Controllers\Administrator\CustomAvatarController;
 use App\Http\Controllers\Administrator\LogoutController;
 use App\Http\Controllers\Administrator\MembersController;
+use App\Http\Controllers\Administrator\PhotoDocumentationController;
 use App\Http\Controllers\Administrator\ProjectsController;
 use App\Http\Controllers\Guest\{
     LoginController
@@ -87,6 +88,11 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/avatar/create_or_update_custom_avatar', [CustomAvatarController::class, 'create_or_update_custom_avatar'])->middleware(['admin_route']);
             Route::post('/avatar/get_available_custom_avatars', [CustomAvatarController::class, 'get_available_custom_avatars']);
             Route::post('/avatar/set_as_my_custom_avatar', [CustomAvatarController::class, 'set_as_my_custom_avatar']);
+        });
+
+        Route::prefix('photo-documentation')->group(function() {
+            Route::post('/photo-documentation/get_photo_documentations', [PhotoDocumentationController::class, 'get_photo_documentations']);
+            Route::post('/photo-documentation/submit_photo_documentation', [PhotoDocumentationController::class, 'submit_photo_documentation']);
         });
     });
 
