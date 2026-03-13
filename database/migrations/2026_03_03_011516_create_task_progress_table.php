@@ -12,7 +12,8 @@ return new class extends Migration
         'PENDING',
         'VERIFIED',
         'NOT WORKING PROPERLY',
-        'DECLINED'
+        'DECLINED',
+        'VERIFIYING'
     ];
 
     /**
