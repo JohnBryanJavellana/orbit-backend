@@ -145,7 +145,7 @@ class BorderController extends Controller
             ])->firstOrFail();
 
             if($this_user->custom_border_id === $this_rare_inv->custom_border_id) {
-                $this_user->custom_border_id = 0;
+                $this_user->custom_border_id = null;
                 $this_user->save();
             }
 

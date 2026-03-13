@@ -26,7 +26,7 @@ class SaveAvatar implements ShouldQueue
     public function handle() {
         if ($this->avatar) {
             if($this->deletableFile) {
-                if(file_exists(public_path("$this->path/$this->filename"))) {
+                if(file_exists(public_path("$this->path/$this->filename")) && $this->deletableFile !== 'default-profile-avatar.png') {
                     unlink(public_path("$this->path/$this->filename"));
                 }
             }

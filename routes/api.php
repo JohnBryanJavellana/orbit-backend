@@ -3,6 +3,7 @@
 use App\Http\Controllers\Administrator\AnnouncementController;
 use App\Http\Controllers\Administrator\AuraPointRecordController;
 use App\Http\Controllers\Administrator\BorderController;
+use App\Http\Controllers\Administrator\CustomAvatarController;
 use App\Http\Controllers\Administrator\LogoutController;
 use App\Http\Controllers\Administrator\MembersController;
 use App\Http\Controllers\Administrator\ProjectsController;
@@ -79,6 +80,13 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/border/get_user_new_rare_borders', [BorderController::class, 'get_user_new_rare_borders']);
             Route::post('/border/add_new_rare_borders', [BorderController::class, 'add_new_rare_borders']);
             Route::post('/border/remove_user_rare_borders', [BorderController::class, 'remove_user_rare_borders']);
+        });
+
+        Route::prefix('avatar')->group(function() {
+            Route::get('/avatar/get_custom_avatars', [CustomAvatarController::class, 'get_custom_avatars'])->middleware(['admin_route']);
+            Route::post('/avatar/create_or_update_custom_avatar', [CustomAvatarController::class, 'create_or_update_custom_avatar'])->middleware(['admin_route']);
+            Route::post('/avatar/get_available_custom_avatars', [CustomAvatarController::class, 'get_available_custom_avatars']);
+            Route::post('/avatar/set_as_my_custom_avatar', [CustomAvatarController::class, 'set_as_my_custom_avatar']);
         });
     });
 
