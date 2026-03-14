@@ -24,11 +24,29 @@ class BorderController extends Controller
      */
     public function get_custom_borders(Request $request) {
         return TransactionUtil::transact(null, [], function () use ($request) {
-            $borders = CustomBorder::withCount([
-                'borderUsers'
-            ])->get();
-
+            $borders = CustomBorder::all();
             return response()->json(['borders' => $borders], 200);
+        });
+    }
+
+    /**
+     * Summary of remove_custom_border
+     * @param Request $request
+     */
+    public function remove_custom_border(Request $request, int $borderId) {
+        return TransactionUtil::transact(null, [], function () use ($request, $borderId) {
+            $this_border = CustomBorder::findOrFail($borderId);
+
+            if($this_border->total_active_users > 0) {
+                return response()->json(['message' => "Some players or maybe you are using this border or maybe it's in their inventory."], 409);
+            }
+
+            if(file_exists(public_path("border-images/$this_border->filename"))) {
+                unlink(public_path("border-images/$this_border->filename"));
+            }
+
+            $this_border->delete();
+            return response()->json(['message' => "Successs action!"], 200);
         });
     }
 

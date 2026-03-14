@@ -82,6 +82,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/border/get_user_new_rare_borders', [BorderController::class, 'get_user_new_rare_borders']);
             Route::post('/border/add_new_rare_borders', [BorderController::class, 'add_new_rare_borders']);
             Route::post('/border/remove_user_rare_borders', [BorderController::class, 'remove_user_rare_borders']);
+
+            Route::delete('/border/remove_custom_border/{borderId}', [BorderController::class, 'remove_custom_border'])->middleware(['admin_route']);
         });
 
         Route::prefix('avatar')->group(function() {
