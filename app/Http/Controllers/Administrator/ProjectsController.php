@@ -201,7 +201,7 @@ class ProjectsController extends Controller
 
             $tasks = $request->taskCtrl
                 ? $tasksTemp->where('ctrl', $request->taskCtrl)->firstOrFail()
-                : $tasksTemp->get();
+                : $tasksTemp->orderBy('status', 'DESC')->get();
 
             return response()->json([
                 'project' => $project,
