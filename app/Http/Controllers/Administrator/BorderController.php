@@ -24,7 +24,7 @@ class BorderController extends Controller
      */
     public function get_custom_borders(Request $request) {
         return TransactionUtil::transact(null, [], function () use ($request) {
-            $borders = CustomBorder::all();
+            $borders = CustomBorder::orderBy('type', 'ASC')->get();
             return response()->json(['borders' => $borders], 200);
         });
     }

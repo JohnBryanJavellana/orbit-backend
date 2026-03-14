@@ -91,6 +91,8 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/avatar/create_or_update_custom_avatar', [CustomAvatarController::class, 'create_or_update_custom_avatar'])->middleware(['admin_route']);
             Route::post('/avatar/get_available_custom_avatars', [CustomAvatarController::class, 'get_available_custom_avatars']);
             Route::post('/avatar/set_as_my_custom_avatar', [CustomAvatarController::class, 'set_as_my_custom_avatar']);
+
+            Route::delete('/avatar/remove_custom_avatar/{avatarId}', [CustomAvatarController::class, 'remove_custom_avatar'])->middleware(['admin_route']);
         });
 
         Route::prefix('photo-documentation')->group(function() {

@@ -29,6 +29,28 @@ class CustomAvatarController extends Controller
     }
 
     /**
+     * Summary of remove_custom_avatar
+     * @param Request $request
+     * @param int $avatarId
+     */
+    public function remove_custom_avatar(Request $request, int $avatarId) {
+        return TransactionUtil::transact(null, [], function () use ($request, $avatarId) {
+            $this_avatar = CustomAvatar::findOrFail($avatarId);
+
+            if($this_avatar->total_active_users > 0) {
+                return response()->json(['message' => "Some players or maybe you are using this avatar."], 409);
+            }
+
+            if(file_exists(public_path("custom-avatar-images/$this_avatar->filename"))) {
+                unlink(public_path("custom-avatar-images/$this_avatar->filename"));
+            }
+
+            $this_avatar->delete();
+            return response()->json(['message' => "Successs action!"], 200);
+        });
+    }
+
+    /**
      * Summary of create_or_update_custom_avatar
      * @param CreateOrUpdateCustomAvatar $request
      */
