@@ -160,7 +160,8 @@ class ProjectsController extends Controller
                 $this_project->status = $status;
 
                 if($status === "COMPLETED") {
-                    foreach ($this_project->collaborators as $collaborator) {
+                    $listOfMembers = $this_project->collaborators()->where('status', 'ACTIVE')->get();
+                    foreach ($listOfMembers as $collaborator) {
                         $this_main_account = User::findOrFail($collaborator->collaborator_id);
                         $this_main_account->total_points += $this_project->completion_points;
                         $this_main_account->save();
@@ -245,7 +246,9 @@ class ProjectsController extends Controller
                 $this_project_task->status = $status;
 
                 if($status === "COMPLETED") {
-                    foreach ($this_project_task->members as $member) {
+                    $listOfMembers = $this_project_task->members()->where('status', 'ACTIVE')->get();
+
+                    foreach ($listOfMembers as $member) {
                         $this_main_account = User::findOrFail($member->member_id);
                         $this_main_account->increment('total_points', $this_project_task->task_completion_points);
 
