@@ -11,6 +11,7 @@ use App\Http\Controllers\Administrator\ProjectsController;
 use App\Http\Controllers\Guest\{
     LoginController
 };
+use App\Http\Controllers\Member\DailyActivitiesController;
 use App\Http\Controllers\Member\GetFriendsController;
 use App\Http\Controllers\Member\GetProjectsController;
 use App\Models\User;
@@ -97,6 +98,11 @@ Route::middleware('auth:sanctum')->group(function () {
     });
 
     Route::prefix('member')->group(function() {
+        Route::prefix('daily-activities')->group(function() {
+            Route::get('/daily-activities/get_daily_activities', [DailyActivitiesController::class, 'get_daily_activities']);
+            Route::post('/daily-activities/save_roulette_score', [DailyActivitiesController::class, 'save_roulette_score']);
+        });
+
         Route::get('/friends/get_friends', [GetFriendsController::class, 'get_friends']);
         Route::get('/projects/get_assigned_projects', [GetProjectsController::class, 'get_assigned_projects']);
         Route::post('/projects/get_assigned_projects/apply_to_a_task', [GetProjectsController::class, 'apply_to_a_task']);
