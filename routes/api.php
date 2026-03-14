@@ -61,6 +61,7 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::post('/get_members/create_or_update_member', [MembersController::class, 'create_or_update_member']);
             Route::get('/get_member_roles', [MembersController::class, 'get_member_roles'])->middleware(['admin_route']);
             Route::post('/get_member_roles/create_or_update_member_role', [MembersController::class, 'create_or_update_member_role'])->middleware(['admin_route']);
+            Route::delete('/members/remove_role/{roleId}', [MembersController::class, 'remove_role'])->middleware(['admin_route']);
         });
 
         Route::prefix('announcement')->group(function() {

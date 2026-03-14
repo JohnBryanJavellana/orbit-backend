@@ -110,6 +110,24 @@ class MembersController extends Controller
     }
 
     /**
+     * Summary of remove_role
+     * @param Request $request
+     * @param int $roleId
+     */
+    public function remove_role(Request $request, int $roleId) {
+        return TransactionUtil::transact(null, [], function () use ($request, $roleId) {
+            $this_role = MemberRole::findOrFail($roleId);
+
+            if($this_role->total_active_users > 0) {
+                return response()->json(['message' => "Some players are assigned with this role."], 409);
+            }
+
+            $this_role->delete();
+            return response()->json(['message' => "Successs action!"], 200);
+        });
+    }
+
+    /**
      * Summary of create_or_update_member_role
      * @param CreateOrUpdateMemberRole $request
      */

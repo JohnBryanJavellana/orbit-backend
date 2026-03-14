@@ -161,17 +161,21 @@ class ProjectsController extends Controller
 
                 if($status === "COMPLETED") {
                     $listOfMembers = $this_project->collaborators()->where('status', 'ACTIVE')->get();
+
                     foreach ($listOfMembers as $collaborator) {
                         $this_main_account = User::findOrFail($collaborator->collaborator_id);
-                        $this_main_account->total_points += $this_project->completion_points;
-                        $this_main_account->save();
 
-                        NewAuraRecord::createRecord(
-                            $this_main_account->id,
-                            $this_project->completion_points,
-                            'INCREASE',
-                            'Added from a completed project.'
-                        );
+                        if($this_main_account->role === "MEMBER") {
+                            $this_main_account->total_points += $this_project->completion_points;
+                            $this_main_account->save();
+
+                            NewAuraRecord::createRecord(
+                                $this_main_account->id,
+                                $this_project->completion_points,
+                                'INCREASE',
+                                'Added from a completed project.'
+                            );
+                        }
                     }
                 }
             }
@@ -250,14 +254,17 @@ class ProjectsController extends Controller
 
                     foreach ($listOfMembers as $member) {
                         $this_main_account = User::findOrFail($member->member_id);
-                        $this_main_account->increment('total_points', $this_project_task->task_completion_points);
 
-                        NewAuraRecord::createRecord(
-                            $this_main_account->id,
-                            $this_project_task->task_completion_points,
-                            'INCREASE',
-                            'Added from a completed task.'
-                        );
+                        if($this_main_account->role === "MEMBER") {
+                            $this_main_account->increment('total_points', $this_project_task->task_completion_points);
+
+                            NewAuraRecord::createRecord(
+                                $this_main_account->id,
+                                $this_project_task->task_completion_points,
+                                'INCREASE',
+                                'Added from a completed task.'
+                            );
+                        }
                     }
                 }
             }
