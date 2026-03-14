@@ -9,10 +9,6 @@ class PhotoDocumentation extends Model
 {
     use HasFactory;
 
-    public function uploader() {
-        return $this->hasOne(User::class, 'id', 'uploader');
-    }
-
     public function task() {
         return $this->hasOne(Task::class, 'id', 'task_id');
     }

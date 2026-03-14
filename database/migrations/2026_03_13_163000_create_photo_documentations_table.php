@@ -17,7 +17,6 @@ return new class extends Migration
             $table->engine('innoDB');
             $table->id();
             $table->foreignIdFor(Task::class)->constrained()->cascadeOnDelete();
-            $table->foreignIdFor(User::class, 'uploader')->constrained('users')->cascadeOnDelete();
             $table->timestamps();
         });
     }

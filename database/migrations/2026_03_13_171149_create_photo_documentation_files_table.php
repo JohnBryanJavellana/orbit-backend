@@ -1,6 +1,7 @@
 <?php
 
 use App\Models\PhotoDocumentation;
+use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -15,6 +16,7 @@ return new class extends Migration
         Schema::create('photo_documentation_files', function (Blueprint $table) {
             $table->engine('innoDB');
             $table->id();
+            $table->foreignIdFor(User::class, 'uploader')->constrained('users')->cascadeOnDelete();
             $table->foreignIdFor(PhotoDocumentation::class)->constrained()->cascadeOnDelete();
             $table->longText('filename');
             $table->timestamps();

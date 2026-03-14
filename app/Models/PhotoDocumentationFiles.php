@@ -8,4 +8,8 @@ use Illuminate\Database\Eloquent\Model;
 class PhotoDocumentationFiles extends Model
 {
     use HasFactory;
+
+    public function uploader() {
+        return $this->hasOne(User::class, 'id', 'uploader');
+    }
 }
