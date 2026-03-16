@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Administrator\AuraPointRecord\ModifyPoints;
 use App\Models\AuraPointsRecord;
 use App\Models\User;
+use App\Utils\Notifications;
 use App\Utils\TransactionUtil;
 use Illuminate\Http\Request;
 
@@ -57,6 +58,9 @@ class AuraPointRecordController extends Controller
             if($modifyType === "DECREASE") $this_player->total_points -= $points;
             if($modifyType === "INCREASE") $this_player->total_points += $points;
             $this_player->save();
+
+            $status = strtolower($modifyType);
+            Notifications::notify($request->user()->id, $playerId, $status . "d manually your aura points.");
 
             return response()->json(['message' => "Success Action!"], 200);
         });
