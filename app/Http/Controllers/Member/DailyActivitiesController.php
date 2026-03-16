@@ -7,7 +7,6 @@ use App\Models\CustomBorder;
 use App\Models\DailyActivitiesReward;
 use App\Models\User;
 use App\Models\UserBorderInv;
-use App\Models\UserCustomAvatar;
 use App\Utils\NewAuraRecord;
 use App\Utils\TransactionUtil;
 use Illuminate\Http\Request;
