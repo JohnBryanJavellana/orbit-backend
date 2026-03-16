@@ -51,6 +51,7 @@ class PhotoDocumentationController extends Controller
             $this_task = Task::where('ctrl', $taskCtrl)->firstOrFail();
             $existingDocumentation = PhotoDocumentation::where('task_id', $this_task->id)
                 ->whereDate('created_at', Carbon::today())
+                ->lockForUpdate()
                 ->first();
 
             if ($existingDocumentation) {
