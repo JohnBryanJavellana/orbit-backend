@@ -12,6 +12,7 @@ use App\Jobs\SaveAvatar;
 use App\Models\CustomBorder;
 use App\Models\User;
 use App\Models\UserBorderInv;
+use App\Utils\Notifications;
 use App\Utils\TransactionUtil;
 use Illuminate\Http\Request;
 use Str;
@@ -143,6 +144,8 @@ class BorderController extends Controller
                 }
             }
 
+            Notifications::notify($request->user()->id, $userId, "added a new rare border on your inventory");
+
             return response()->json(['message' => "Successs action!"], 200);
         });
     }
@@ -168,6 +171,8 @@ class BorderController extends Controller
             }
 
             $this_rare_inv->delete();
+
+            Notifications::notify($request->user()->id, $userId, "removed rare border on your inventory");
             return response()->json(['message' => "Successs action!"], 200);
         });
     }

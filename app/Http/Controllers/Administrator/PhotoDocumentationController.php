@@ -10,6 +10,7 @@ use App\Models\PhotoDocumentationFiles;
 use App\Models\Task;
 use App\Models\User;
 use App\Utils\NewAuraRecord;
+use App\Utils\Notifications;
 use App\Utils\TransactionUtil;
 use Illuminate\Http\Request;
 use Str;
@@ -47,6 +48,7 @@ class PhotoDocumentationController extends Controller
         return TransactionUtil::transact($request, [], function () use ($request) {
             $documentationFile = $request->documentation;
             $taskCtrl = $request->taskCtrl;
+            $user = $request->user();
 
             $this_task = Task::where('ctrl', $taskCtrl)->firstOrFail();
             $existingDocumentation = PhotoDocumentation::where('task_id', $this_task->id)
@@ -58,7 +60,7 @@ class PhotoDocumentationController extends Controller
                 $parentDoc = $existingDocumentation;
 
                 $countUploadedFiles = $existingDocumentation->uploadedFiles()->count();
-                if($countUploadedFiles >= 5 && $request->user()->role !== "SUPERADMIN") {
+                if($countUploadedFiles >= 5 && $user->role !== "SUPERADMIN") {
                     return response()->json(['message' => "Today's upload max count has been reached."], 409);
                 }
             } else {
@@ -72,7 +74,7 @@ class PhotoDocumentationController extends Controller
             if ($documentationFile) {
                 $this_file = new PhotoDocumentationFiles();
                 $this_file->photo_documentation_id = $parentDoc->id;
-                $this_file->uploader = $request->user()->id;
+                $this_file->uploader = $user->id;
 
                 $filename = Str::uuid() . '.png';
                 SaveAvatar::dispatch($documentationFile, $filename, 'documentation-files', false, true, '');
@@ -80,8 +82,8 @@ class PhotoDocumentationController extends Controller
                 $this_file->filename = $filename;
                 $this_file->save();
 
-                if($request->user()->role !== "SUPERADMIN") {
-                    $this_uploader = User::findOrFail($request->user()->id);
+                if($user->role !== "SUPERADMIN") {
+                    $this_uploader = User::findOrFail($user->id);
                     $this_uploader->increment('total_points', 5);
                     $this_uploader->save();
 
@@ -89,6 +91,8 @@ class PhotoDocumentationController extends Controller
                     $message .= " Also you've received a 5 additional aura points.";
                 }
             }
+
+            Notifications::notify($user->id, null, "have submitted a task photo documentation.");
 
             return response()->json(['message' => $message], 200);
         });

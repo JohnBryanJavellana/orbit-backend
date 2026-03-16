@@ -16,6 +16,7 @@ use App\Models\ProjectCollaborator;
 use App\Models\TaskProgress;
 use App\Models\User;
 use App\Utils\NewAuraRecord;
+use App\Utils\Notifications;
 use Illuminate\Http\Request;
 
 use App\Http\Requests\Administrator\Project\{
@@ -106,6 +107,8 @@ class ProjectsController extends Controller
             $this_member->status = $status;
             $this_member->save();
 
+            Notifications::notify($request->user()->id, $collaboratorId, "changed your project collaborator status as $status.");
+
             return response()->json(['message' => "$status successfully!"], status: 200);
         });
     }
@@ -127,6 +130,8 @@ class ProjectsController extends Controller
             $assign_member->collaborator_id = $collaboratorId;
             $assign_member->status = "ACTIVE";
             $assign_member->save();
+
+            Notifications::notify($request->user()->id, $collaboratorId, "added you as project collaborator. Project CTRL#$this_project->ctrl");
 
             return response()->json(['message' => "Success action!"], status: 200);
         });
@@ -321,6 +326,8 @@ class ProjectsController extends Controller
             $assign_member->status = "ACTIVE";
             $assign_member->save();
 
+            Notifications::notify($request->user()->id, $memberId, "added you as task collaborator. Task CTRL#$this_task->ctrl");
+
             return response()->json(['message' => "Success action!"], 200);
         });
     }
@@ -343,6 +350,8 @@ class ProjectsController extends Controller
 
             $this_member->status = $status;
             $this_member->save();
+
+            Notifications::notify($request->user()->id, $collaboratorId, "changed your task collaborator status as $status.");
 
             return response()->json(['message' => "$status successfully!"], status: 200);
         });
@@ -396,6 +405,8 @@ class ProjectsController extends Controller
                     'Added from a verified task progress.'
                 );
             }
+
+            Notifications::notify($request->user()->id, $this_progress->initiator->user->id, "updated your task progress as $status.");
 
             return response()->json(['message' => "$status successfully!"], status: 200);
         });
