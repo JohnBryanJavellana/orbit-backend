@@ -22,7 +22,7 @@ class AnnouncementController extends Controller
                 ? $announcementsTemp->where([
                     'status' => 'SHOW'
                 ])->orderBy('created_at', 'DESC')->get()
-                : $announcementsTemp->orderBy('created_at')->get();
+                : $announcementsTemp->orderBy('created_at', 'DESC')->get();
 
             return response()->json(['announcements' => $announcements], 200);
         });

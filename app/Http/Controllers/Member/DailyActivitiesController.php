@@ -21,12 +21,13 @@ class DailyActivitiesController extends Controller
      */
     public function get_daily_activities(Request $request) {
         return TransactionUtil::transact(null, [], function () use ($request) {
-            $checkIfICanPlayDailyActivities = DailyActivitiesReward::where([
-                'initiator' => $request->user()->id
-            ])->orderBy('created_at', 'DESC')->first();
+            $dailyRecord = DailyActivitiesReward::where('initiator', $request->user()->id)
+                ->whereDate('created_at', Carbon::today())
+                ->first();
 
             $activities = [
-                'roulette' => $checkIfICanPlayDailyActivities ? $checkIfICanPlayDailyActivities->daily_roulette : 'PENDING'
+                'roulette' => $dailyRecord ? $dailyRecord->daily_roulette : 'PENDING',
+                'cupShuffle' => $dailyRecord ? $dailyRecord->cup_shuffle : 'PENDING'
             ];
 
             return response()->json(['activities' => $activities], 200);
@@ -40,20 +41,19 @@ class DailyActivitiesController extends Controller
     public function save_roulette_score(Request $request) {
         return TransactionUtil::transact(null, [], function () use ($request) {
             $score = $request->score;
+            $usingActualAPs = $request->usingActualAPs;
             $rareBorder = null;
             $userId = $request->user()->id;
 
-            $alreadyClaimed = DailyActivitiesReward::where([
-                'initiator' => $userId,
-                'daily_roulette' => 'TAKEN',
-                'created_at' => Carbon::today()
-            ])->exists();
-
-            if($alreadyClaimed) {
-                return response()->json(['message' => "Reward already claimed for today."], 409);
+            if($usingActualAPs) {
+                if($usingActualAPs < $request->user()->total_points) {
+                    $request->user()->decrement('total_points', $usingActualAPs);
+                } else {
+                    return response()->json(['message' => "It seems that you dont have remaining aura points."], 409);
+                }
             }
 
-            if($score === 'RARE BORDER') {
+            if($score === 'RARE BORDER' && $request->user()->role === "SUPERADMIN") {
                 $rareBorder = $this->get_random_rare_border($userId);
 
                 $new_rare_in_inv = new UserBorderInv();
@@ -65,13 +65,12 @@ class DailyActivitiesController extends Controller
             $numericScore = (int) $score;
             if($numericScore > 0){
                 $request->user()->increment('total_points', $numericScore);
-                NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', 'Added from a daily roulette game.');
+                NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', 'Added from a roulette game.');
             }
 
             $checkIfItHasRow = DailyActivitiesReward::where([
-                'initiator' => $userId,
-                'created_at' => Carbon::today()
-            ]);
+                'initiator' => $userId
+            ])->whereDate('created_at', Carbon::today());
 
             $this_daily_games = $checkIfItHasRow->exists() ? $checkIfItHasRow->lockForUpdate()->first() : new DailyActivitiesReward();
             $this_daily_games->initiator = $userId;
@@ -81,6 +80,46 @@ class DailyActivitiesController extends Controller
             return response()->json([
                 'message' => $score === 'RARE BORDER' ? "Legendary! You found a Rare Border!" : ($numericScore > 0 ? "$numericScore Aura Points successfully added." : "No Aura Points Added. Better luck next time!"),
                 'rare_border_img' => $rareBorder ? "border-images/{$rareBorder->filename}" : null,
+                'points_added' => $numericScore
+            ], 200);
+        });
+    }
+
+    /**
+     * Summary of save_cup_shuffle_score
+     * @param Request $request
+     */
+    public function save_cup_shuffle_score(Request $request) {
+        return TransactionUtil::transact(null, [], function () use ($request) {
+            $score = $request->score;
+            $usingActualAPs = $request->usingActualAPs;
+            $userId = $request->user()->id;
+
+            if($usingActualAPs) {
+                if($usingActualAPs < $request->user()->total_points) {
+                    $request->user()->decrement('total_points', $usingActualAPs);
+                } else {
+                    return response()->json(['message' => "It seems that you dont have remaining aura points."], 409);
+                }
+            }
+
+            $numericScore = (int) $score;
+            if($numericScore > 0){
+                $request->user()->increment('total_points', $numericScore);
+                NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', 'Added from a cup shuffle game.');
+            }
+
+            $checkIfItHasRow = DailyActivitiesReward::where([
+                'initiator' => $userId
+            ])->whereDate('created_at', Carbon::today());
+
+            $this_daily_games = $checkIfItHasRow->exists() ? $checkIfItHasRow->lockForUpdate()->first() : new DailyActivitiesReward();
+            $this_daily_games->initiator = $userId;
+            $this_daily_games->cup_shuffle = "TAKEN";
+            $this_daily_games->save();
+
+            return response()->json([
+                'message' => ($numericScore > 0 ? "$numericScore Aura Points successfully added." : "No Aura Points Added. Better luck next time!"),
                 'points_added' => $numericScore
             ], 200);
         });
