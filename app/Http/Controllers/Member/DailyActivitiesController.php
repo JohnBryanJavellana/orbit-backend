@@ -97,7 +97,7 @@ class DailyActivitiesController extends Controller
             $user = User::where('id', $request->user()->id)->lockForUpdate()->first();
 
             if($usingActualAPs) {
-                if($usingActualAPs < $user->total_points) {
+                if($usingActualAPs <= $user->total_points) {
                     $user->decrement('total_points', $usingActualAPs);
                 } else {
                     return response()->json(['message' => "It seems that you dont have remaining aura points."], 409);
