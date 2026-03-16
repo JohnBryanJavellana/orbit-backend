@@ -53,7 +53,7 @@ class DailyActivitiesController extends Controller
                 }
             }
 
-            if($score === 'RARE BORDER' && $user->role === "SUPERADMIN") {
+            if($score === 'RARE BORDER' && $user->role !== "SUPERADMIN") {
                 $rareBorder = $this->get_random_rare_border($userId);
 
                 $new_rare_in_inv = new UserBorderInv();
