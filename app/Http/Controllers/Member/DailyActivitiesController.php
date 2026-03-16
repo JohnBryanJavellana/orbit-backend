@@ -44,16 +44,17 @@ class DailyActivitiesController extends Controller
             $usingActualAPs = $request->usingActualAPs;
             $rareBorder = null;
             $userId = $request->user()->id;
+            $user = User::where('id', $request->user()->id)->lockForUpdate()->first();
 
             if($usingActualAPs) {
-                if($usingActualAPs < $request->user()->total_points) {
-                    $request->user()->decrement('total_points', $usingActualAPs);
+                if($usingActualAPs < $user->total_points) {
+                    $user->decrement('total_points', $usingActualAPs);
                 } else {
                     return response()->json(['message' => "It seems that you dont have remaining aura points."], 409);
                 }
             }
 
-            if($score === 'RARE BORDER' && $request->user()->role === "SUPERADMIN") {
+            if($score === 'RARE BORDER' && $user->role === "SUPERADMIN") {
                 $rareBorder = $this->get_random_rare_border($userId);
 
                 $new_rare_in_inv = new UserBorderInv();
@@ -64,7 +65,7 @@ class DailyActivitiesController extends Controller
 
             $numericScore = (int) $score;
             if($numericScore > 0){
-                $request->user()->increment('total_points', $numericScore);
+                $user->increment('total_points', $numericScore);
                 NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', 'Added from a roulette game.');
             }
 
@@ -94,10 +95,11 @@ class DailyActivitiesController extends Controller
             $score = $request->score;
             $usingActualAPs = $request->usingActualAPs;
             $userId = $request->user()->id;
+            $user = User::where('id', $request->user()->id)->lockForUpdate()->first();
 
             if($usingActualAPs) {
-                if($usingActualAPs < $request->user()->total_points) {
-                    $request->user()->decrement('total_points', $usingActualAPs);
+                if($usingActualAPs < $user->total_points) {
+                    $user->decrement('total_points', $usingActualAPs);
                 } else {
                     return response()->json(['message' => "It seems that you dont have remaining aura points."], 409);
                 }
@@ -105,7 +107,7 @@ class DailyActivitiesController extends Controller
 
             $numericScore = (int) $score;
             if($numericScore > 0){
-                $request->user()->increment('total_points', $numericScore);
+                $user->increment('total_points', $numericScore);
                 NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', 'Added from a cup shuffle game.');
             }
 
