@@ -10,7 +10,7 @@ use App\Http\Controllers\Administrator\NotificationController;
 use App\Http\Controllers\Administrator\PhotoDocumentationController;
 use App\Http\Controllers\Administrator\ProjectsController;
 use App\Http\Controllers\Guest\{
-    LoginController
+    ForgotPasswordController, LoginController
 };
 use App\Http\Controllers\Member\DailyActivitiesController;
 use App\Http\Controllers\Member\GetFriendsController;
@@ -31,6 +31,9 @@ use Illuminate\Support\Facades\Route;
 */
 
 Route::post('/login', [LoginController::class, 'login_user']);
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'forgotPassword']);
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword']);
 
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/user', function(Request $request) {
