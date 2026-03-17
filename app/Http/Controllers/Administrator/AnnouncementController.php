@@ -29,6 +29,19 @@ class AnnouncementController extends Controller
     }
 
     /**
+     * Summary of remove_announcement
+     * @param Request $request
+     * @param int $announcementId
+     */
+    public function remove_announcement(Request $request, int $announcementId) {
+        return TransactionUtil::transact(null, [], function () use ($request, $announcementId) {
+            $this_announcement = Announcement::findOrFail($announcementId);
+            $this_announcement->delete();
+            return response()->json(['message' => "Successs action!"], 200);
+        });
+    }
+
+    /**
      * Summary of create_or_update_announcement
      * @param CreateOrUpdateAnnouncement $request
      */

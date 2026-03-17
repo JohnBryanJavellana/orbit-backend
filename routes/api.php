@@ -68,6 +68,7 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('announcement')->group(function() {
             Route::match(['GET', 'POST'], '/get_announcements/get_announcements', [AnnouncementController::class, 'get_announcements']);
             Route::post('/get_announcements/create_or_update_announcement', [AnnouncementController::class, 'create_or_update_announcement'])->middleware(['admin_route']);
+            Route::delete('/get_announcements/remove_announcement/{announcementId}', [AnnouncementController::class, 'remove_announcement'])->middleware(['admin_route']);
         });
 
         Route::prefix('aura_point_record')->group(function() {
