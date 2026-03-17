@@ -6,6 +6,7 @@ use App\Http\Controllers\Administrator\BorderController;
 use App\Http\Controllers\Administrator\CustomAvatarController;
 use App\Http\Controllers\Administrator\LogoutController;
 use App\Http\Controllers\Administrator\MembersController;
+use App\Http\Controllers\Administrator\NotificationController;
 use App\Http\Controllers\Administrator\PhotoDocumentationController;
 use App\Http\Controllers\Administrator\ProjectsController;
 use App\Http\Controllers\Guest\{
@@ -99,6 +100,12 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::prefix('photo-documentation')->group(function() {
             Route::post('/photo-documentation/get_photo_documentations', [PhotoDocumentationController::class, 'get_photo_documentations']);
             Route::post('/photo-documentation/submit_photo_documentation', [PhotoDocumentationController::class, 'submit_photo_documentation']);
+        });
+
+        Route::prefix('notification')->group(function() {
+            Route::get('/notification/check_ishas_unread_notifications', [NotificationController::class, 'check_ishas_unread_notifications']);
+            Route::get('/notification/get_notifications', [NotificationController::class, 'get_notifications']);
+            Route::post('/notification/set_as_red', [NotificationController::class, 'set_as_red']);
         });
     });
 
