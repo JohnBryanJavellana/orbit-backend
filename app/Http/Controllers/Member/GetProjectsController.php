@@ -10,8 +10,10 @@ use App\Models\Member;
 use App\Models\Projects;
 use App\Models\Task;
 use App\Models\TaskProgress;
+use App\Utils\Notifications;
 use App\Utils\TransactionUtil;
 use Illuminate\Http\Request;
+use Carbon\Carbon;
 
 class GetProjectsController extends Controller
 {
@@ -97,6 +99,7 @@ class GetProjectsController extends Controller
         return TransactionUtil::transact(null, [], function () use ($request) {
             $taskId = $request->taskId;
 
+            $this_task = Task::findOrFail($taskId);
             $checkForExistence = Member::where([
                 'member_id' => $request->user()->id,
                 'task_id' => $taskId
@@ -111,6 +114,8 @@ class GetProjectsController extends Controller
             $new_member->member_id = $request->user()->id;
             $new_member->status = "PENDING";
             $new_member->save();
+
+            Notifications::notify($request->user()->id, null, "submitted a task application. Task CTRL#$this_task->ctrl");
 
             return response()->json(['message' => "Success! Task application has been submitted. Please check for application updates."], 409);
         });
@@ -164,6 +169,10 @@ class GetProjectsController extends Controller
             $taskCtrl = $request->taskCtrl;
             $activity = $request->activity;
 
+            if(Carbon::now()->gte(Carbon::parse('16:30'))) {
+                return response()->json(['message' => "I'm sorry. We can't accept your progress at this time. Try submitting tomorrow before 4:30 PM"], 409);
+            }
+
             $this_task = Task::where('ctrl', $taskCtrl)->firstOrFail();
             $this_member = Member::where([
                 'member_id' => $request->user()->id,
@@ -188,6 +197,8 @@ class GetProjectsController extends Controller
 
             $this_task->status = "IN PROGRESS";
             $this_task->save();
+
+            Notifications::notify($request->user()->id, null, "submitted a progress. Task CTRL#$this_task->ctrl");
 
             return response()->json(['message' => "Success! Task application progress has been submitted. Please check for application updates."], 409);
         });
