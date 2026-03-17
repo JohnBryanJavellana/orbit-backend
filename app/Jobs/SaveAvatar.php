@@ -20,7 +20,8 @@ class SaveAvatar implements ShouldQueue
         public string $path,
         public bool $isUrl = false,
         public bool $isBase64 = false,
-        public string $deletableFile = ""
+        public string $deletableFile = "",
+        public string $base64Type = "image"
     ) {}
 
     public function handle() {
@@ -47,7 +48,7 @@ class SaveAvatar implements ShouldQueue
             }
 
             if($this->isBase64) {
-                return ConvertToBase64::generate($this->avatar, 'image', "$this->path/$this->filename");
+                return ConvertToBase64::generate($this->avatar, $this->base64Type, "$this->path/$this->filename");
             }
         }
     }

@@ -5,14 +5,18 @@ namespace App\Http\Controllers\Member;
 use App\Http\Controllers\Administrator\ProjectsController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administrator\Project\GetTaskProgress;
+use App\Jobs\SaveAvatar;
 use App\Models\Member;
+use App\Models\ProgressAttachment;
 use App\Models\Projects;
 use App\Models\Task;
 use App\Models\TaskProgress;
 use App\Utils\Notifications;
 use App\Utils\TransactionUtil;
+use File;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Str;
 
 class GetProjectsController extends Controller
 {
@@ -167,6 +171,7 @@ class GetProjectsController extends Controller
         return TransactionUtil::transact(null, [], function () use ($request) {
             $taskCtrl = $request->taskCtrl;
             $activity = $request->activity;
+            $attachments = $request->attachments;
 
             if(Carbon::now()->gte(Carbon::parse('16:30'))) {
                 return response()->json(['message' => "I'm sorry. We can't accept your progress at this time. Try submitting tomorrow before 4:30 PM"], 409);
@@ -187,15 +192,50 @@ class GetProjectsController extends Controller
                 return response()->json(['message' => "You still have a pending progress. Kindly contact our supreme."], 409);
             }
 
-            $new_member = new TaskProgress();
-            $new_member->task_id = $this_task->id;
-            $new_member->member_id = $this_member->id;
-            $new_member->activity = $activity;
-            $new_member->status = "PENDING";
-            $new_member->save();
+            $new_progress = new TaskProgress();
+            $new_progress->task_id = $this_task->id;
+            $new_progress->member_id = $this_member->id;
+            $new_progress->activity = $activity;
+            $new_progress->status = "PENDING";
+            $new_progress->save();
 
             $this_task->status = "IN PROGRESS";
             $this_task->save();
+
+            if ($attachments) {
+                foreach ($attachments as $attachment) {
+                    $extension = 'png';
+                    $base64Type = 'image';
+
+                    if (preg_match('/^data:(\w+)\/([\w\.\-]+);base64,/', $attachment, $matches)) {
+                        $mimeMainType = $matches[1];
+                        $mimeSubType = $matches[2];
+
+                        $base64Type = $mimeMainType;
+                        $extension = match(true) {
+                            str_contains($mimeSubType, 'officedocument.wordprocessingml') => 'docx',
+                            str_contains($mimeSubType, 'officedocument.spreadsheetml') => 'xlsx',
+                            str_contains($mimeSubType, 'officedocument.presentationml') => 'pptx',
+                            default => $mimeSubType
+                        };
+                    }
+
+                    $fileName = Str::uuid() . '.' . $extension;
+                    SaveAvatar::dispatch(
+                        avatar: $attachment,
+                        filename: $fileName,
+                        path: 'progress-attachments',
+                        isUrl: false,
+                        isBase64: true,
+                        base64Type: $base64Type
+                    );
+
+                    $new_attachment = new ProgressAttachment();
+                    $new_attachment->progress_id = $new_progress->id;
+                    $new_attachment->filename = $fileName;
+                    $new_attachment->save();
+                }
+            }
 
             Notifications::notify($request->user()->id, null, "submitted a progress. Task CTRL#$this_task->ctrl");
 
