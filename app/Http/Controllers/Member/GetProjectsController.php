@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers\Member;
 
-use App\Helpers\Administrator\General\CheckForDocumentExistence;
 use App\Http\Controllers\Administrator\ProjectsController;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administrator\Project\GetTaskProgress;
