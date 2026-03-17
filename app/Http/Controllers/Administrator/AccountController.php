@@ -34,7 +34,7 @@ class AccountController extends Controller
             $user->save();
 
             return response()->json([
-                'message' => "Success! Your account password has been updated.",
+                'message' => "Success! Your account password has been updated. You will be logged out automatically, please log in again with your new credentials.",
                 'reloggin' => true
             ], 200);
         });
