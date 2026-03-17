@@ -13,7 +13,5 @@ class Notifications
         $notif->message = $message;
         $notif->is_read = false;
         $notif->save();
-
-        return response()->json(['message' => ""], 201);
     }
 }
