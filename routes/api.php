@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Administrator\AccountController;
 use App\Http\Controllers\Administrator\AnnouncementController;
 use App\Http\Controllers\Administrator\AuraPointRecordController;
 use App\Http\Controllers\Administrator\BorderController;
@@ -110,6 +111,10 @@ Route::middleware('auth:sanctum')->group(function () {
             Route::get('/notification/check_ishas_unread_notifications', [NotificationController::class, 'check_ishas_unread_notifications']);
             Route::get('/notification/get_notifications', [NotificationController::class, 'get_notifications']);
             Route::post('/notification/set_as_red', [NotificationController::class, 'set_as_red']);
+        });
+
+        Route::prefix('account')->group(function() {
+            Route::post('/account/update_password', [AccountController::class, 'update_password']);
         });
     });
 
