@@ -326,7 +326,7 @@ class ProjectsController extends Controller
             $assign_member->status = "ACTIVE";
             $assign_member->save();
 
-            Notifications::notify($request->user()->id, $memberId, "added you as task collaborator. Task CTRL#$this_task->ctrl");
+            Notifications::notify($request->user()->id, $memberId, "added you as task collaborator. Task CTRL# $this_task->ctrl");
 
             return response()->json(['message' => "Success action!"], 200);
         });
@@ -351,7 +351,7 @@ class ProjectsController extends Controller
             $this_member->status = $status;
             $this_member->save();
 
-            Notifications::notify($request->user()->id, $collaboratorId, "changed your task collaborator status as $status.");
+            Notifications::notify($request->user()->id, $collaboratorId, "changed your task collaborator status as $status. Task CTRL# $this_task->ctrl");
 
             return response()->json(['message' => "$status successfully!"], status: 200);
         });
@@ -406,7 +406,7 @@ class ProjectsController extends Controller
                 );
             }
 
-            Notifications::notify($request->user()->id, $this_progress->initiator->user->id, "updated your task progress as $status.");
+            Notifications::notify($request->user()->id, $this_progress->initiator->user->id, "updated your task progress as $status. Task CTRL# " . $this_progress->task->ctrl);
 
             return response()->json(['message' => "$status successfully!"], status: 200);
         });

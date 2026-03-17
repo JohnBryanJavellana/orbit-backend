@@ -92,7 +92,7 @@ class PhotoDocumentationController extends Controller
                 }
             }
 
-            Notifications::notify($user->id, null, "have submitted a task photo documentation.");
+            Notifications::notify($user->id, null, "have submitted a task photo documentation. Task CTRL# $this_task->ctrl");
 
             return response()->json(['message' => $message], 200);
         });
