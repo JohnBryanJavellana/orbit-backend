@@ -26,7 +26,8 @@ class DailyActivitiesController extends Controller
 
             $activities = [
                 'roulette' => $dailyRecord ? $dailyRecord->daily_roulette : 'PENDING',
-                'cupShuffle' => $dailyRecord ? $dailyRecord->cup_shuffle : 'PENDING'
+                'cupShuffle' => $dailyRecord ? $dailyRecord->cup_shuffle : 'PENDING',
+                'colorGame' => $dailyRecord ? $dailyRecord->color_game : 'PENDING'
             ];
 
             return response()->json(['activities' => $activities], 200);
@@ -133,6 +134,51 @@ class DailyActivitiesController extends Controller
             $this_daily_games = $checkIfItHasRow->exists() ? $checkIfItHasRow->lockForUpdate()->first() : new DailyActivitiesReward();
             $this_daily_games->initiator = $userId;
             $this_daily_games->cup_shuffle = "TAKEN";
+            $this_daily_games->save();
+
+            return response()->json([
+                'message' => ($numericScore > 0 ? "$numericScore Aura Points successfully added." : "No Aura Points Added. Better luck next time!"),
+                'points_added' => $numericScore
+            ], 200);
+        });
+    }
+
+    public function save_color_game_score(Request $request) {
+        return TransactionUtil::transact(null, [], function () use ($request) {
+            $score = $request->score;
+            $usingActualAPs = $request->usingActualAPs;
+            $userId = $request->user()->id;
+            $user = User::where('id', $request->user()->id)->lockForUpdate()->first();
+
+            $checkIfItHasRow = DailyActivitiesReward::where([
+                'initiator' => $userId
+            ])->whereDate('created_at', Carbon::today());
+
+            if($checkIfItHasRow->exists()) {
+                $a = $checkIfItHasRow->lockForUpdate()->first();
+                if($a->color_game === "TAKEN" && !$usingActualAPs) {
+                    return response()->json(['message' => "We've detected a malicious gameplay. Please be aware of what you're doing."], 409);
+                }
+            }
+
+            if($usingActualAPs) {
+                if($usingActualAPs <= $user->total_points) {
+                    $user->decrement('total_points', $usingActualAPs);
+                    NewAuraRecord::createRecord($userId, $usingActualAPs, 'DECREASE', 'Deducted from a color game.');
+                } else {
+                    return response()->json(['message' => "It seems that you dont have remaining aura points."], 409);
+                }
+            }
+
+            $numericScore = (int) $score;
+            if($numericScore > 0){
+                $user->increment('total_points', $numericScore);
+                NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', 'Added from a color game.');
+            }
+
+            $this_daily_games = $checkIfItHasRow->exists() ? $checkIfItHasRow->lockForUpdate()->first() : new DailyActivitiesReward();
+            $this_daily_games->initiator = $userId;
+            $this_daily_games->color_game = "TAKEN";
             $this_daily_games->save();
 
             return response()->json([
