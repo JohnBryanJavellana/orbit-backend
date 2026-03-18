@@ -351,7 +351,7 @@ class ProjectsController extends Controller
             $this_member->status = $status;
             $this_member->save();
 
-            Notifications::notify($request->user()->id, $collaboratorId, "changed your task collaborator status as $status. Task CTRL# $this_task->ctrl");
+            Notifications::notify($request->user()->id, $this_member->user->id, "changed your task collaborator status as $status. Task CTRL# $this_task->ctrl");
 
             return response()->json(['message' => "$status successfully!"], status: 200);
         });
