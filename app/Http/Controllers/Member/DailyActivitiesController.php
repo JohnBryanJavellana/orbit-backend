@@ -45,9 +45,21 @@ class DailyActivitiesController extends Controller
             $userId = $request->user()->id;
             $user = User::where('id', $request->user()->id)->lockForUpdate()->first();
 
+            $checkIfItHasRow = DailyActivitiesReward::where([
+                'initiator' => $userId
+            ])->whereDate('created_at', Carbon::today());
+
+            if($checkIfItHasRow->exists()) {
+                $a = $checkIfItHasRow->lockForUpdate()->first();
+                if($a->daily_roulette === "TAKEN" && !$usingActualAPs) {
+                    return response()->json(['message' => "We've detected a malicious gameplay. Please be aware of what you're doing."], 409);
+                }
+            }
+
             if($usingActualAPs) {
                 if($usingActualAPs <= $user->total_points) {
                     $user->decrement('total_points', $usingActualAPs);
+                    NewAuraRecord::createRecord($userId, $usingActualAPs, 'DECREASE', 'Deducted from a cup roulette game.');
                 } else {
                     return response()->json(['message' => "It seems that you dont have remaining aura points."], 409);
                 }
@@ -67,10 +79,6 @@ class DailyActivitiesController extends Controller
                 $user->increment('total_points', $numericScore);
                 NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', 'Added from a roulette game.');
             }
-
-            $checkIfItHasRow = DailyActivitiesReward::where([
-                'initiator' => $userId
-            ])->whereDate('created_at', Carbon::today());
 
             $this_daily_games = $checkIfItHasRow->exists() ? $checkIfItHasRow->lockForUpdate()->first() : new DailyActivitiesReward();
             $this_daily_games->initiator = $userId;
@@ -96,9 +104,21 @@ class DailyActivitiesController extends Controller
             $userId = $request->user()->id;
             $user = User::where('id', $request->user()->id)->lockForUpdate()->first();
 
+            $checkIfItHasRow = DailyActivitiesReward::where([
+                'initiator' => $userId
+            ])->whereDate('created_at', Carbon::today());
+
+            if($checkIfItHasRow->exists()) {
+                $a = $checkIfItHasRow->lockForUpdate()->first();
+                if($a->cup_shuffle === "TAKEN" && !$usingActualAPs) {
+                    return response()->json(['message' => "We've detected a malicious gameplay. Please be aware of what you're doing."], 409);
+                }
+            }
+
             if($usingActualAPs) {
                 if($usingActualAPs <= $user->total_points) {
                     $user->decrement('total_points', $usingActualAPs);
+                    NewAuraRecord::createRecord($userId, $usingActualAPs, 'DECREASE', 'Deducted from a cup shuffle game.');
                 } else {
                     return response()->json(['message' => "It seems that you dont have remaining aura points."], 409);
                 }
@@ -109,10 +129,6 @@ class DailyActivitiesController extends Controller
                 $user->increment('total_points', $numericScore);
                 NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', 'Added from a cup shuffle game.');
             }
-
-            $checkIfItHasRow = DailyActivitiesReward::where([
-                'initiator' => $userId
-            ])->whereDate('created_at', Carbon::today());
 
             $this_daily_games = $checkIfItHasRow->exists() ? $checkIfItHasRow->lockForUpdate()->first() : new DailyActivitiesReward();
             $this_daily_games->initiator = $userId;
