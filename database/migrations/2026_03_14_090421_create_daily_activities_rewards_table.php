@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public const DAILY_ROULETTE = [
+    public const GAME_STATUS = [
         'TAKEN',
         'PENDING'
     ];
@@ -21,7 +21,10 @@ return new class extends Migration
             $table->engine('innoDB');
             $table->id();
             $table->foreignIdFor(User::class, 'initiator')->constrained('users')->cascadeOnDelete();
-            $table->enum('daily_roulette', self::DAILY_ROULETTE)->default(self::DAILY_ROULETTE[1]);
+            $table->enum('daily_roulette', self::GAME_STATUS)->default(self::GAME_STATUS[1]);
+            $table->enum('cup_shuffle', self::GAME_STATUS)->default(self::GAME_STATUS[1]);
+            $table->enum('color_game', self::GAME_STATUS)->default(self::GAME_STATUS[1]);
+            $table->enum('plinko_game', self::GAME_STATUS)->default(self::GAME_STATUS[1]);
             $table->timestamps();
         });
     }

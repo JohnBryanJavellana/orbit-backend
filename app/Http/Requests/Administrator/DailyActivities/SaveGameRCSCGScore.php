@@ -22,8 +22,8 @@ class SaveGameRCSCGScore extends FormRequest
     public function rules(): array
     {
         return [
-            'score' => ['required', 'numeric'],
-            'gameService' => ['required', 'string', 'in:cup_shuffle,daily_roulette,color_game'],
+            'score' => ['required'],
+            'gameService' => ['required', 'string', 'in:cup_shuffle,daily_roulette,color_game,plinko_game'],
         ];
     }
 }
