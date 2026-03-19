@@ -121,9 +121,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::prefix('member')->group(function() {
         Route::prefix('daily-activities')->group(function() {
             Route::get('/daily-activities/get_daily_activities', [DailyActivitiesController::class, 'get_daily_activities']);
-            Route::post('/daily-activities/save_roulette_score', [DailyActivitiesController::class, 'save_roulette_score']);
-            Route::post('/daily-activities/save_cup_shuffle_score', [DailyActivitiesController::class, 'save_cup_shuffle_score']);
-            Route::post('/daily-activities/save_color_game_score', [DailyActivitiesController::class, 'save_color_game_score']);
+            Route::post('/daily-activities/save_game_r_cs_cg_score', [DailyActivitiesController::class, 'save_game_r_cs_cg_score']);
         });
 
         Route::get('/friends/get_friends', [GetFriendsController::class, 'get_friends']);
