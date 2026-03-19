@@ -123,7 +123,7 @@ class DailyActivitiesController extends Controller
             if($usingActualAPs) {
                 if($usingActualAPs <= $user->total_points) {
                     $user->decrement('total_points', $usingActualAPs);
-                    NewAuraRecord::createRecord($userId, $usingActualAPs, 'DECREASE', "Deducted from a " . str_replace('_', ' ', $gameService) . " game.");
+                    NewAuraRecord::createRecord($userId, $usingActualAPs, 'DECREASE', "Deducted from a " . str_replace('_', ' ', $gameService));
                 } else {
                     return response()->json(['message' => "It seems that you dont have remaining aura points."], 409);
                 }
@@ -141,7 +141,7 @@ class DailyActivitiesController extends Controller
             $numericScore = (int) $score;
             if($numericScore > 0){
                 $user->increment('total_points', $numericScore);
-                NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', "Added from a " . str_replace('_', ' ', $gameService) . " game.");
+                NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', "Added from a " . str_replace('_', ' ', $gameService));
             }
 
             $this_daily_games = $checkIfItHasRow->exists() ? $checkIfItHasRow->lockForUpdate()->first() : new DailyActivitiesReward();
