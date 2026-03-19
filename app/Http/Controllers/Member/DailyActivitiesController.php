@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Member;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Administrator\DailyActivities\SaveGameRCSCGScore;
 use App\Models\CustomBorder;
 use App\Models\DailyActivitiesReward;
 use App\Models\User;
@@ -95,14 +96,17 @@ class DailyActivitiesController extends Controller
     }
 
     /**
-     * Summary of save_cup_shuffle_score
-     * @param Request $request
+     * Summary of save_game_r_cs_cg_score
+     * @param SaveGameRCSCGScore $request
      */
-    public function save_cup_shuffle_score(Request $request) {
-        return TransactionUtil::transact(null, [], function () use ($request) {
+    public function save_game_r_cs_cg_score(SaveGameRCSCGScore $request) {
+        return TransactionUtil::transact($request, [], function () use ($request) {
             $score = $request->score;
             $usingActualAPs = $request->usingActualAPs;
+            $gameService = $request->gameService;
             $userId = $request->user()->id;
+            $rareBorder = null;
+
             $user = User::where('id', $request->user()->id)->lockForUpdate()->first();
 
             $checkIfItHasRow = DailyActivitiesReward::where([
@@ -111,7 +115,7 @@ class DailyActivitiesController extends Controller
 
             if($checkIfItHasRow->exists()) {
                 $a = $checkIfItHasRow->lockForUpdate()->first();
-                if($a->cup_shuffle === "TAKEN" && !$usingActualAPs) {
+                if($a->{$gameService} === "TAKEN" && !$usingActualAPs) {
                     return response()->json(['message' => "We've detected a malicious gameplay. Please be aware of what you're doing."], 409);
                 }
             }
@@ -119,70 +123,35 @@ class DailyActivitiesController extends Controller
             if($usingActualAPs) {
                 if($usingActualAPs <= $user->total_points) {
                     $user->decrement('total_points', $usingActualAPs);
-                    NewAuraRecord::createRecord($userId, $usingActualAPs, 'DECREASE', 'Deducted from a cup shuffle game.');
+                    NewAuraRecord::createRecord($userId, $usingActualAPs, 'DECREASE', "Deducted from a " . str_replace($gameService, '_', '') . " game.");
                 } else {
                     return response()->json(['message' => "It seems that you dont have remaining aura points."], 409);
                 }
             }
 
-            $numericScore = (int) $score;
-            if($numericScore > 0){
-                $user->increment('total_points', $numericScore);
-                NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', 'Added from a cup shuffle game.');
-            }
+            if( $gameService === "daily_roulette" && ($score === 'RARE BORDER' && $user->role !== "SUPERADMIN")) {
+                $rareBorder = $this->get_random_rare_border($userId);
 
-            $this_daily_games = $checkIfItHasRow->exists() ? $checkIfItHasRow->lockForUpdate()->first() : new DailyActivitiesReward();
-            $this_daily_games->initiator = $userId;
-            $this_daily_games->cup_shuffle = "TAKEN";
-            $this_daily_games->save();
-
-            return response()->json([
-                'message' => ($numericScore > 0 ? "$numericScore Aura Points successfully added." : "No Aura Points Added. Better luck next time!"),
-                'points_added' => $numericScore
-            ], 200);
-        });
-    }
-
-    public function save_color_game_score(Request $request) {
-        return TransactionUtil::transact(null, [], function () use ($request) {
-            $score = $request->score;
-            $usingActualAPs = $request->usingActualAPs;
-            $userId = $request->user()->id;
-            $user = User::where('id', $request->user()->id)->lockForUpdate()->first();
-
-            $checkIfItHasRow = DailyActivitiesReward::where([
-                'initiator' => $userId
-            ])->whereDate('created_at', Carbon::today());
-
-            if($checkIfItHasRow->exists()) {
-                $a = $checkIfItHasRow->lockForUpdate()->first();
-                if($a->color_game === "TAKEN" && !$usingActualAPs) {
-                    return response()->json(['message' => "We've detected a malicious gameplay. Please be aware of what you're doing."], 409);
-                }
-            }
-
-            if($usingActualAPs) {
-                if($usingActualAPs <= $user->total_points) {
-                    $user->decrement('total_points', $usingActualAPs);
-                    NewAuraRecord::createRecord($userId, $usingActualAPs, 'DECREASE', 'Deducted from a color game.');
-                } else {
-                    return response()->json(['message' => "It seems that you dont have remaining aura points."], 409);
-                }
+                $new_rare_in_inv = new UserBorderInv();
+                $new_rare_in_inv->user_id = $userId;
+                $new_rare_in_inv->custom_border_id = $rareBorder->id;
+                $new_rare_in_inv->save();
             }
 
             $numericScore = (int) $score;
             if($numericScore > 0){
                 $user->increment('total_points', $numericScore);
-                NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', 'Added from a color game.');
+                NewAuraRecord::createRecord($userId, $numericScore, 'INCREASE', "Added from a " . str_replace($gameService, '_', '') . " game.");
             }
 
             $this_daily_games = $checkIfItHasRow->exists() ? $checkIfItHasRow->lockForUpdate()->first() : new DailyActivitiesReward();
             $this_daily_games->initiator = $userId;
-            $this_daily_games->color_game = "TAKEN";
+            $this_daily_games->{$gameService} = "TAKEN";
             $this_daily_games->save();
 
             return response()->json([
-                'message' => ($numericScore > 0 ? "$numericScore Aura Points successfully added." : "No Aura Points Added. Better luck next time!"),
+                'message' => $score === 'RARE BORDER' ? "Legendary! You found a Rare Border!" : ($numericScore > 0 ? "$numericScore Aura Points successfully added." : "No Aura Points Added. Better luck next time!"),
+                'rare_border_img' => $rareBorder ? "border-images/{$rareBorder->filename}" : null,
                 'points_added' => $numericScore
             ], 200);
         });
