@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class CleanupExpiredDailyActivitiyRows extends Command
 {
-    protected $signature = 'app:cleanup-expired-daily-activitiy-rows';
+    protected $signature = 'announcements:cleanup-expired-daily-activitiy-rows';
     protected $description = 'Remove daily activities row where the created_at date has passed';
 
     /**
