@@ -118,7 +118,7 @@ class User extends Authenticatable
     }
 
     public function userNote() {
-        return $this->hasOne(UserNote::class, 'id', 'user_id');
+        return $this->hasOne(UserNote::class, 'user_id', 'id');
     }
 
     public function getCustomAvatarAttribute(){
