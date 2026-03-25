@@ -115,6 +115,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
         Route::prefix('account')->group(function() {
             Route::post('/account/update_password', [AccountController::class, 'update_password']);
+            Route::post('/account/create_note', [AccountController::class, 'create_note']);
         });
     });
 

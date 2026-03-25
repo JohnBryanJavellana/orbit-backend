@@ -14,6 +14,7 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('announcements:cleanup')->everyFiveMinutes();
         $schedule->command('announcements:birthdays')->everyFiveMinutes();
+        $schedule->command('announcements:user-note')->everyFiveMinutes();
         $schedule->command('announcements:cleanup-expired-daily-activitiy-rows')->everyFiveMinutes();
     }
 

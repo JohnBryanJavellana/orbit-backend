@@ -27,7 +27,7 @@ class User extends Authenticatable
      * @var array<int, string>
      */
     protected $guarded = ['id'];
-    protected $appends = ['aura_progress', 'user_profile_view', 'is_online', 'custom_border', 'custom_avatar'];
+    protected $appends = ['aura_progress', 'user_profile_view', 'is_online', 'custom_border', 'custom_avatar', 'custom_user_note'];
 
     /**
      * The attributes that should be hidden for serialization.
@@ -117,12 +117,20 @@ class User extends Authenticatable
         return $this->hasOne(UserCustomAvatar::class, 'id', 'user_custom_avatar_id');
     }
 
+    public function userNote() {
+        return $this->hasOne(UserNote::class, 'id', 'user_id');
+    }
+
     public function getCustomAvatarAttribute(){
         return $this->customAvatar()->with('customAvatar')->first();
     }
 
     public function getCustomBorderAttribute(){
         return $this->customBorder()->first();
+    }
+
+    public function getCustomUserNoteAttribute(){
+        return $this->userNote;
     }
 
     public function getUserProfileViewAttribute() {
