@@ -8,7 +8,7 @@ use Carbon\Carbon;
 
 class CleanupExpiredDailyActivitiyRows extends Command
 {
-    protected $signature = 'app:cleanup-expired-daily-activitiy-rows';
+    protected $signature = 'announcements:cleanup-expired-daily-activitiy-rows';
     protected $description = 'Remove daily activities row where the created_at date has passed';
 
     /**
@@ -16,8 +16,8 @@ class CleanupExpiredDailyActivitiyRows extends Command
      */
     public function handle()
     {
-        $now = Carbon::now();
-        $deletedCount = DailyActivitiesReward::where('created_at', '<', $now)->delete();
+        $yesterday = Carbon::yesterday()->endOfDay();
+        $deletedCount = DailyActivitiesReward::where('created_at', '<=', $yesterday)->delete();
         $this->info("Successfully deleted {$deletedCount} expired daily activities row.");
     }
 }
