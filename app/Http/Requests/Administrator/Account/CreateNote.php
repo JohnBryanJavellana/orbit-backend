@@ -22,7 +22,8 @@ class CreateNote extends FormRequest
     public function rules(): array
     {
         return [
-            'note' => ['required', 'string', 'max:50']
+            'note' => ['required_without_all:music', 'nullable', 'string', 'max:50'],
+            'music' => ['required_without_all:note', 'nullable', 'json']
         ];
     }
 }

@@ -2,6 +2,7 @@
 
 namespace App\Jobs;
 
+use File;
 use Illuminate\Bus\Queueable;
 use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
@@ -26,6 +27,10 @@ class SaveAvatar implements ShouldQueue
 
     public function handle() {
         if ($this->avatar) {
+            if (!File::isDirectory(public_path($this->path))) {
+                File::makeDirectory(public_path($this->path), 0755, true, true);
+            }
+
             if($this->deletableFile) {
                 if(file_exists(public_path("$this->path/$this->filename")) && $this->deletableFile !== 'default-profile-avatar.png') {
                     unlink(public_path("$this->path/$this->filename"));

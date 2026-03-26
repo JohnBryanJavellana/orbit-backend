@@ -48,7 +48,10 @@ class AccountController extends Controller
      */
     public function create_note (CreateNote $request){
         return TransactionUtil::transact($request, [], function() use ($request) {
+            \Log::info($request->all());
+
             $note = $request->note;
+            $music = $request->music;
             $userId = $request->user()->id;
 
             $checkIfExisting = UserNote::where('user_id', $userId);
@@ -58,6 +61,7 @@ class AccountController extends Controller
 
             $this_note->user_id = $userId;
             $this_note->note = $note;
+            $this_note->note_audio = $music;
             $this_note->created_at = now();
             $this_note->save();
 

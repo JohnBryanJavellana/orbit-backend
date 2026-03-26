@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\CustomNoteMusic;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -16,7 +17,8 @@ return new class extends Migration
             $table->engine = 'InnoDB';
             $table->id();
             $table->foreignIdfor(User::class)->constrained()->cascadeOnDelete();
-            $table->string('note', 255);
+            $table->json('note_audio')->nullable();
+            $table->string('note', 255)->nullable();
             $table->timestamps();
         });
     }

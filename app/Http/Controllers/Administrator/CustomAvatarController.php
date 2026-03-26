@@ -15,7 +15,7 @@ use Str;
 class CustomAvatarController extends Controller
 {
     /**
-     * Summary of get_custom_borders
+     * Summary of get_custom_avatars
      * @param Request $request
      */
     public function get_custom_avatars(Request $request) {
