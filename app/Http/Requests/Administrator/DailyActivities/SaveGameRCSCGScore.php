@@ -23,7 +23,7 @@ class SaveGameRCSCGScore extends FormRequest
     {
         return [
             'score' => ['required'],
-            'gameService' => ['required', 'string', 'in:cup_shuffle,daily_roulette,color_game,plinko_game'],
+            'gameService' => ['required', 'string', 'in:cup_shuffle,daily_roulette,color_game,plinko_game,high_or_low,rock_paper_scissor'],
         ];
     }
 }

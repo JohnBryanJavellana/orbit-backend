@@ -25,6 +25,9 @@ return new class extends Migration
             $table->enum('cup_shuffle', self::GAME_STATUS)->default(self::GAME_STATUS[1]);
             $table->enum('color_game', self::GAME_STATUS)->default(self::GAME_STATUS[1]);
             $table->enum('plinko_game', self::GAME_STATUS)->default(self::GAME_STATUS[1]);
+            $table->enum('high_or_low', self::GAME_STATUS)->default(self::GAME_STATUS[1]);
+            $table->enum('rock_paper_scissor', self::GAME_STATUS)->default(self::GAME_STATUS[1]);
+            $table->enum('plinko_game', self::GAME_STATUS)->default(self::GAME_STATUS[1]);
             $table->timestamps();
         });
     }

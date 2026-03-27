@@ -29,7 +29,9 @@ class DailyActivitiesController extends Controller
                 'roulette' => $dailyRecord ? $dailyRecord->daily_roulette : 'PENDING',
                 'cupShuffle' => $dailyRecord ? $dailyRecord->cup_shuffle : 'PENDING',
                 'colorGame' => $dailyRecord ? $dailyRecord->color_game : 'PENDING',
-                'plinkoGame' => $dailyRecord ? $dailyRecord->plinko_game : 'PENDING'
+                'plinkoGame' => $dailyRecord ? $dailyRecord->plinko_game : 'PENDING',
+                'highOrLow' => $dailyRecord ? $dailyRecord->high_or_low : 'PENDING',
+                'rockPaperScissor' => $dailyRecord ? $dailyRecord->rock_paper_scissor : 'PENDING'
             ];
 
             return response()->json(['activities' => $activities], 200);
