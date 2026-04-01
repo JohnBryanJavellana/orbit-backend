@@ -25,8 +25,8 @@ class CreateOrUpdateAnnouncement extends FormRequest
         return [
             'contentText' => ['required', 'string'],
             'httpMethod' => ['required', 'string', 'in:POST,UPDATE'],
-            'status' => [Rule::when($this->httpMethod === "UPDATE", ['required', 'in:SHOW,HIDE'], ['nullable'])],
-            'documentId' => [Rule::when($this->httpMethod === "UPDATE", ['required', 'exists:announcements,id'], ['nullable'])]
+            'status' => ['required_if:httpMethod,UPDATE', 'in:SHOW,HIDE'],
+            'documentId' => ['required_if:httpMethod,UPDATE', 'exists:announcements,id']
         ];
     }
 }

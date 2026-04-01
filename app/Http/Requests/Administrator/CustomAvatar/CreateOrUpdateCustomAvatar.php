@@ -24,8 +24,8 @@ class CreateOrUpdateCustomAvatar extends FormRequest
     {
         return [
             'httpMethod' => ['required', 'string', 'in:POST,UPDATE'],
-            'avatar' => ['string', Rule::when($this->httpMethod === "POST", ['required'], ['nullable'])],
-            'documentId' => [Rule::when($this->httpMethod === "UPDATE", ['required', 'exists:custom_avatars,id'], ['nullable'])]
+            'avatar' => ['required_if:httpMethod,UPDATE'],
+            'documentId' => ['required_if:httpMethod,UPDATE', 'exists:custom_avatars,id']
         ];
     }
 }

@@ -25,7 +25,7 @@ class CreateOrUpdateMemberRole extends FormRequest
         return [
             'role' => ['required', 'string'],
             'httpMethod' => ['required', 'string', 'in:POST,UPDATE'],
-            'documentId' => [Rule::when($this->httpMethod === "UPDATE", ['required', 'exists:member_roles,id'], ['nullable'])]
+            'documentId' => ['required_if:httpMethod,UPDATE', 'exists:member_roles,id']
         ];
     }
 }

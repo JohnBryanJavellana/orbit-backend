@@ -27,7 +27,7 @@ class CreateOrUpdateProject extends FormRequest
             'description' => ['required', 'string'],
             'httpMethod' => ['required', 'string', 'in:POST,UPDATE'],
             'completionPoints' => ['required', 'numeric'],
-            'documentId' => [Rule::when($this->httpMethod === "UPDATE", ['required', 'exists:projects,id'], ['nullable'])]
+            'documentId' => ['required_if:httpMethod,UPDATE', 'exists:projects,id']
         ];
     }
 }

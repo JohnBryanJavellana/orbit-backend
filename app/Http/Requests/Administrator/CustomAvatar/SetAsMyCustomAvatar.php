@@ -25,7 +25,7 @@ class SetAsMyCustomAvatar extends FormRequest
         return [
             'using' => ['required', 'string', 'in:MAIN,CUSTOM'],
             'userCustomAvatarId' => ['string', 'required', 'exists:user_custom_avatars,id'],
-            'avatarId' => [Rule::when($this->using !== "MAIN", ['required', 'exists:custom_avatars,id'], ['required'])]
+            'avatarId' => ['required_if:using,MAIN', 'exists:custom_avatars,id'],
         ];
     }
 }

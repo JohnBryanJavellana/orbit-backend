@@ -25,7 +25,7 @@ class UpdateTaskProgress extends FormRequest
         return [
             'progressId' => ['required', 'exists:task_progress,id'],
             'status' => ['required', 'in:PENDING,VERIFIED,NOT WORKING PROPERLY,DECLINED,VERIFYING'],
-            'remarks' => [Rule::when($this->status === 'DECLINED', ['required', 'string'], ['nullable'])],
+            'remarks' => ['required_if:status,DECLINED', 'string']
         ];
     }
 }

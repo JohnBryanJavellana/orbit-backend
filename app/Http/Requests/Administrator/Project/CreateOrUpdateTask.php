@@ -29,7 +29,7 @@ class CreateOrUpdateTask extends FormRequest
             'task_progress_points' => ['required', 'numeric', 'min:1', Rule::when($this->user()->role === "ADMINISTRATOR", ['max:10'], ['nullable'])],
             'description' => ['required', 'string'],
             'httpMethod' => ['required', 'string', 'in:POST,UPDATE'],
-            'documentId' => [Rule::when($this->httpMethod === "UPDATE", ['required', 'exists:tasks,id'], ['nullable'])]
+            'documentId' => ['required_if:httpMethod,UPDATE', 'exists:tasks,id']
         ];
     }
 }

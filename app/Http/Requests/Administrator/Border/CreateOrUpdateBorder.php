@@ -25,8 +25,8 @@ class CreateOrUpdateBorder extends FormRequest
         return [
             'type' => ['required', 'string', 'in:FREE,RARE'],
             'httpMethod' => ['required', 'string', 'in:POST,UPDATE'],
-            'border' => ['string', Rule::when($this->httpMethod === "POST", ['required'], ['nullable'])],
-            'documentId' => [Rule::when($this->httpMethod === "UPDATE", ['required', 'exists:custom_borders,id'], ['nullable'])]
+            'border' => ['required_if:httpMethod,UPDATE'],
+            'documentId' => ['required_if:httpMethod,UPDATE', 'exists:custom_borders,id']
         ];
     }
 }
