@@ -30,7 +30,7 @@ class CreateOrUpdateAnnouncement extends FormRequest
             'oldAttachmentIds' => ['array'],
             'oldAttachmentIds.*' => ['exists:announcement_attachments,id'],
             'newAttachments' => ['array'],
-            'newAttachments.*' => ['string', 'starts_with:data:image/,data:video/'],
+            'newAttachments.*' => ['file', 'mimes:jpg,jpeg,png,gif,mp4', 'max:40240'] // max 40MB
         ];
     }
 }

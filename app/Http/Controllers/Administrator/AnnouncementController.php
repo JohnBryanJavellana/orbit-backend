@@ -8,6 +8,7 @@ use App\Jobs\SaveAvatar;
 use App\Models\Announcement;
 use App\Models\AnnouncementAttachment;
 use App\Utils\GenerateTrace;
+use App\Utils\SaveFile;
 use App\Utils\TransactionUtil;
 use Illuminate\Http\Request;
 use Str;
@@ -80,24 +81,26 @@ class AnnouncementController extends Controller
             $this_announcement->content = $contentText;
             $this_announcement->save();
 
-            if($oldAttachmentIds) {
-                $this_announcement->attachments()->whereNotIn('id', $oldAttachmentIds)->get()->each(function($attachment) {
-                    if(file_exists(public_path("announcement_attachments/$attachment->filename"))) {
-                        unlink(public_path("announcement_attachments/$attachment->filename"));
-                    }
-                });
+            $attachmentsToDelete = $this_announcement->attachments()
+                ->when(!empty($oldAttachmentIds), function ($query) use ($oldAttachmentIds) {
+                    return $query->whereNotIn('id', $oldAttachmentIds);
+                })->get();
 
-                $this_announcement->attachments()->whereNotIn('id', $oldAttachmentIds)->delete();
+            foreach ($attachmentsToDelete as $attachment) {
+                $filePath = public_path("announcement_attachments/{$attachment->filename}");
+
+                if (file_exists($filePath)) {
+                    unlink($filePath);
+                }
+
+                $attachment->delete();
             }
 
             if ($newAttachments) {
-                foreach ($newAttachments as $attachment) {
-                    preg_match('/^data:(.*);base64,/', $attachment, $match);
-                    $base64Type = $match[1] ?? 'image/png';
-                    $extension = str_contains($base64Type, 'video') ? 'mp4' : 'png';
+                foreach ($newAttachments as $file) {
+                    $extension = $file->getClientOriginalExtension();
                     $filename = Str::uuid() . '.' . $extension;
-
-                    SaveAvatar::dispatch($attachment, $filename, 'announcement_attachments', false, true, '', $base64Type);
+                    SaveFile::save($file, 'announcement_attachments', $filename);
 
                     $this_attachment = new AnnouncementAttachment();
                     $this_attachment->announcement_id = $this_announcement->id;
