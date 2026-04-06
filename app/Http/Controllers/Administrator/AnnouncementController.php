@@ -90,10 +90,14 @@ class AnnouncementController extends Controller
                 $this_announcement->attachments()->whereNotIn('id', $oldAttachmentIds)->delete();
             }
 
-            if($newAttachments) {
-                foreach($newAttachments as $attachment) {
-                    $filename = Str::uuid() . '.png';
-                    SaveAvatar::dispatch($attachment, $filename, 'announcement_attachments', false, true, '');
+            if ($newAttachments) {
+                foreach ($newAttachments as $attachment) {
+                    preg_match('/^data:(.*);base64,/', $attachment, $match);
+                    $base64Type = $match[1] ?? 'application/octet-stream';
+                    $extension = str_contains($base64Type, 'video') ? 'mp4' : 'png';
+                    $filename = Str::uuid() . '.' . $extension;
+
+                    SaveAvatar::dispatch($attachment, $filename, 'announcement_attachments', false, true, '', $base64Type);
 
                     $this_attachment = new AnnouncementAttachment();
                     $this_attachment->announcement_id = $this_announcement->id;

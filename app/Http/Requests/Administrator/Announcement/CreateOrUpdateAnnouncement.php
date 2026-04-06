@@ -29,7 +29,8 @@ class CreateOrUpdateAnnouncement extends FormRequest
             'documentId' => ['required_if:httpMethod,UPDATE', 'exists:announcements,id'],
             'oldAttachmentIds' => ['array'],
             'oldAttachmentIds.*' => ['exists:announcement_attachments,id'],
-            'newAttachments' => ['array']
+            'newAttachments' => ['array'],
+            'newAttachments.*' => ['string', 'starts_with:data:image/,data:video/'],
         ];
     }
 }
