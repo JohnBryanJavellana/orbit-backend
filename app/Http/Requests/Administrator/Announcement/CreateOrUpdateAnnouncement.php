@@ -23,10 +23,13 @@ class CreateOrUpdateAnnouncement extends FormRequest
     public function rules(): array
     {
         return [
-            'contentText' => ['required', 'string'],
+            'contentText' => ['required_without_all:oldAttachmentIds,newAttachments', 'nullable', 'string'],
             'httpMethod' => ['required', 'string', 'in:POST,UPDATE'],
-            'status' => ['required_if:httpMethod,UPDATE', 'in:SHOW,HIDE'],
-            'documentId' => ['required_if:httpMethod,UPDATE', 'exists:announcements,id']
+            'status' => ['required_if:httpMethod,UPDATE', 'nullable', 'in:SHOW,HIDE'],
+            'documentId' => ['required_if:httpMethod,UPDATE', 'exists:announcements,id'],
+            'oldAttachmentIds' => ['array'],
+            'oldAttachmentIds.*' => ['exists:announcement_attachments,id'],
+            'newAttachments' => ['array']
         ];
     }
 }

@@ -14,4 +14,8 @@ class Announcement extends Model
     public function creator() {
         return $this->hasOne(User::class, 'id', 'creator_id');
     }
+
+    public function attachments() {
+        return $this->hasMany(AnnouncementAttachment::class);
+    }
 }

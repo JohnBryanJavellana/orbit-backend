@@ -4,10 +4,13 @@ namespace App\Http\Controllers\Administrator;
 
 use App\Http\Controllers\Controller;
 use App\Http\Requests\Administrator\Announcement\CreateOrUpdateAnnouncement;
+use App\Jobs\SaveAvatar;
 use App\Models\Announcement;
+use App\Models\AnnouncementAttachment;
 use App\Utils\GenerateTrace;
 use App\Utils\TransactionUtil;
 use Illuminate\Http\Request;
+use Str;
 
 class AnnouncementController extends Controller
 {
@@ -17,7 +20,7 @@ class AnnouncementController extends Controller
      */
     public function get_announcements(Request $request) {
         return TransactionUtil::transact(null, [], function () use ($request) {
-            $announcementsTemp = Announcement::with([ 'creator' ]);
+            $announcementsTemp = Announcement::with([ 'creator', 'attachments' ]);
             $announcements = $request->getNew
                 ? $announcementsTemp->where([
                     'status' => 'SHOW'
@@ -36,6 +39,13 @@ class AnnouncementController extends Controller
     public function remove_announcement(Request $request, int $announcementId) {
         return TransactionUtil::transact(null, [], function () use ($request, $announcementId) {
             $this_announcement = Announcement::findOrFail($announcementId);
+
+            foreach($this_announcement->attachments as $attachment) {
+                if(file_exists(public_path("announcement_attachments/$attachment->filename"))) {
+                    unlink(public_path("announcement_attachments/$attachment->filename"));
+                }
+            }
+
             $this_announcement->delete();
             return response()->json(['message' => "Successs action!"], 200);
         });
@@ -52,6 +62,8 @@ class AnnouncementController extends Controller
             $contentText = $request->contentText;
             $status = $request->status;
             $removalDate = $request->removalDate;
+            $oldAttachmentIds = $request->oldAttachmentIds;
+            $newAttachments = $request->newAttachments;
 
             $this_announcement = $isPost
                 ? new Announcement()
@@ -67,6 +79,28 @@ class AnnouncementController extends Controller
             $this_announcement->creator_id = $request->user()->id;
             $this_announcement->content = $contentText;
             $this_announcement->save();
+
+            if($oldAttachmentIds) {
+                $this_announcement->attachments()->whereNotIn('id', $oldAttachmentIds)->get()->each(function($attachment) {
+                    if(file_exists(public_path("announcement_attachments/$attachment->filename"))) {
+                        unlink(public_path("announcement_attachments/$attachment->filename"));
+                    }
+                });
+
+                $this_announcement->attachments()->whereNotIn('id', $oldAttachmentIds)->delete();
+            }
+
+            if($newAttachments) {
+                foreach($newAttachments as $attachment) {
+                    $filename = Str::uuid() . '.png';
+                    SaveAvatar::dispatch($attachment, $filename, 'announcement_attachments', false, true, '');
+
+                    $this_attachment = new AnnouncementAttachment();
+                    $this_attachment->announcement_id = $this_announcement->id;
+                    $this_attachment->filename = $filename;
+                    $this_attachment->save();
+                }
+            }
 
             return response()->json(['message' => "Success action. $request->httpMethod!"], 200);
         });

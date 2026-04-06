@@ -21,7 +21,7 @@ return new class extends Migration
             $table->id();
             $table->longText('ctrl');
             $table->foreignIdFor(User::class, 'creator_id')->constrained('users')->cascadeOnDelete();
-            $table->longText('content');
+            $table->longText('content')->nullable();
             $table->enum('status', self::ANNOUNCEMENT_STATUS)->default(self::ANNOUNCEMENT_STATUS[1]);
             $table->dateTime('removal_date')->nullable();
             $table->timestamps();
