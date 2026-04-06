@@ -4,7 +4,10 @@ namespace App\Utils;
 
 class ConvertToBase64 {
     public static function generate ($base64String, $type, $filename) {
-        $base64String = preg_replace('/^data:' . $type . '\/\w+;base64,/', '', $base64String);
+        if (str_contains($base64String, ',')) {
+            $base64String = explode(',', $base64String)[1];
+        }
+
         $decodedString = base64_decode($base64String, true);
 
         if ($decodedString === false) {
@@ -13,8 +16,8 @@ class ConvertToBase64 {
 
         $filePath = public_path($filename);
 
-        if (!file_put_contents($filePath, $decodedString)) {
-            throw new \Exception('Failed to save image');
+        if (file_put_contents($filePath, $decodedString) === false) {
+            throw new \Exception('Failed to save file');
         }
 
         return $filePath;

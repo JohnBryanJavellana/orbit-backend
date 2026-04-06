@@ -93,7 +93,7 @@ class AnnouncementController extends Controller
             if ($newAttachments) {
                 foreach ($newAttachments as $attachment) {
                     preg_match('/^data:(.*);base64,/', $attachment, $match);
-                    $base64Type = $match[1] ?? 'application/octet-stream';
+                    $base64Type = $match[1] ?? 'image/png';
                     $extension = str_contains($base64Type, 'video') ? 'mp4' : 'png';
                     $filename = Str::uuid() . '.' . $extension;
 
