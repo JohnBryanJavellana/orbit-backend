@@ -25,7 +25,7 @@ class UpdateTaskProgress extends FormRequest
         return [
             'progressId' => ['required', 'exists:task_progress,id'],
             'status' => ['required', 'in:PENDING,VERIFIED,NOT WORKING PROPERLY,DECLINED,VERIFYING'],
-            'remarks' => ['required_if:status,DECLINED', 'string']
+            'remarks' => ['required_if:status,DECLINED', 'string', 'nullable']
         ];
     }
 }
